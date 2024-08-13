@@ -1,5 +1,6 @@
 package com.poloit.grupo12.inscripciones.model;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,4 +19,10 @@ public class Credencial {
     @OneToOne
     @JoinColumn(name = "id_usuario", referencedColumnName = "id")
     private Usuario usuario;
+
+    public Credencial(String user, String pass, Usuario usuario) {
+        this.user = user;
+        this.pass = pass;
+        this.usuario = usuario;
+    }
 }
