@@ -33,7 +33,7 @@ const theme = createTheme({
     },
     text: {
       primary: '#4D4D4D',
-      secondary: '#777795',
+      secondary: '#696984',
     },
     custom: {
       buttonWhiteText: '#818C96',
