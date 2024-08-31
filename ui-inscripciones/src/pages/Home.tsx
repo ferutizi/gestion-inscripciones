@@ -5,6 +5,8 @@ import Button from '@mui/material/Button'
 import CardCursos from '../components/cardCursos';
 import CustomButton from '../components/customButton';
 import NavBar from '../components/NavBar';
+import CardProject from '../components/CardProject';
+import { Container } from '@mui/material';
 
 
 const Home: React.FC = () => {
@@ -41,6 +43,15 @@ const Home: React.FC = () => {
         onButtonClick={() => alert("Curso de Python")}
         buttonText="Inscribite"
       />
+
+      <Container component="section" maxWidth="xl" sx={{display: "flex", flexDirection: {xs: "column", md: "row"}, gap: "2rem"}}>
+        <CardProject
+          title='Acelerador IT'
+          description='Generá un proyecto junto a egresados y un mentor técnico que aportarán las empresas socias del Polo IT'
+          imageUrl='../src/media/project.png'
+          onButtonClick={() => console.log('proyecto')}
+        />
+      </Container>
 
       <CustomButton colorVariant="green" >
         Boton Verde
