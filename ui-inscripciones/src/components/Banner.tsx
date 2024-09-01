@@ -21,7 +21,8 @@ export default function Banner() {
           position: "absolute",
           width: "900px",
           bottom: 0,
-          right: 0
+          right: 0,
+          display: {xs: "none", lg: "block"}
         }}
       />
       <Box sx={{padding: "8rem 6.5rem"}}>
@@ -36,7 +37,7 @@ export default function Banner() {
             display: "flex",
             alignItems: "center",
             backgroundColor: "#fff",
-            padding: "10px 25px"
+            padding: "10px 25px", 
           }}
         >
           Nunca pares de aprender
