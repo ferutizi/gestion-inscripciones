@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Auth } from '../auth';
-import Button from '@mui/material/Button'
 import CardCursos from '../components/cardCursos';
 import CustomButton from '../components/customButton';
 import NavBar from '../components/NavBar';
+import Banner from '../components/Banner';
 
 
 const Home: React.FC = () => {
@@ -20,16 +20,9 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div style={{}}>
+    <div>
       <NavBar />
-      <section className='bg-dark'>
-        <div>
-          <span>Nunca pares de aprender</span>
-          <h2>Desarrolla tus habilidades con cursos en línea</h2>
-          <Button variant='contained' color='secondary' sx={{color: '#fff'}}>VER CURSOS</Button>
-        </div>
-        {/* Imagen */}
-      </section>
+      <Banner />
 
       <CardCursos
         amount='1 Clase Semanal'
