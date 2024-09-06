@@ -1,20 +1,26 @@
 package com.poloit.grupo12.inscripciones.model;
 
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.SequenceGenerator;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class Rol {
     @Id
-    @GeneratedValue(strategy= GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rol_seq")
+    @SequenceGenerator(name = "rol_seq", sequenceName = "rol_seq", allocationSize = 1)
     private Long id;
-    private String Descripcion;
+    private String descripcion;
+
+    public Rol(String descripcion) {
+        this.descripcion = descripcion;
+    }
 }
