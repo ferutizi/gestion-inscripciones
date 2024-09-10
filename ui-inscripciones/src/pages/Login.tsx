@@ -43,7 +43,7 @@ export default function Login() {
           <GoogleButton />
         </Box>
         <Box sx={{display: {xs: "none", md: "block"}}}>
-          <img src="./src/media/register-img.png" alt="Descripción de la imagen" style={{ width: "100%", height: 'auto' }} />
+          <img src="./src/media/login-img.png" alt="Descripción de la imagen" style={{ width: "100%", height: 'auto' }} />
         </Box>
       </LoginLayout>
     </>
