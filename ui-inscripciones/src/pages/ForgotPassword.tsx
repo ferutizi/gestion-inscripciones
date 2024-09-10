@@ -22,7 +22,7 @@ export default function ForgotPassword() {
             No te preocupes, nos pasa a todos. Ingresa tu correo electrónico a continuación para recuperar tu contraseña.
           </Typography>
           <CustomInput type="email" placeholder="ejemplo@gmail.com" label="Email"></CustomInput>
-          <Link to="verify">
+          <Link to="/verify">
             <FormButton buttonText="Enviar" />
           </Link>
         </Box>
