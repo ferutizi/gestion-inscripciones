@@ -86,17 +86,20 @@ export default function DrawerAppBar(props: Props) {
                   INICIAR SESION
                 </CustomButton>
               </Link>
-              <CustomButton
-                colorVariant="green"
-                sx={{
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  },
-                }}
-                  
-              >
-                REGISTRARSE
-              </CustomButton>
+
+              <Link to="/register">
+                <CustomButton
+                  colorVariant="green"
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    },
+                  }}                  
+                >
+                  REGISTRARSE
+                </CustomButton>
+              </Link>
+
             </Box>
           </Box>
         </Toolbar>
