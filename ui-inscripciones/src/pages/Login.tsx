@@ -23,8 +23,8 @@ export default function Login() {
               label="Recordarme"
               control={
                 <Checkbox
-                  name="SomeName"
-                  value="SomeValue"
+                  name="remember"
+                  value={false}
                 />
               }
             />
