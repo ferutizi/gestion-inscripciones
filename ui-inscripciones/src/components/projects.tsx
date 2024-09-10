@@ -30,7 +30,7 @@ const Projects: React.FC = () => {
 </Box>
 <Box sx={{ maxWidth: "800px", margin: "0 auto", textAlign: "center"}}>
       <Typography variant="h6" component="h2" gutterBottom color='#696984' fontWeight={400} mb={5}>
-      Convocatorias a egresados/as de nuestros cursos en IT que quieran participar activamente en proyectos en conjunto con las empresas asociadas.
+      Convocatorias a egresados/as de nuestros cursos en IT que quieran participar activamente en proyectos en conjunto con las empresas asociadas.
       </Typography></Box>
       <Box sx={{ margin: "0 auto", maxWidth: "1200px", display: "flex", justifyContent: "center"}}>
       <CardProyectos
