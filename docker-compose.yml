@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  inscripciones:
+    build:
+      context: ./inscripciones
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db7835.public.databaseasp.net:3306/db7835?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=db7835
+      - SPRING_DATASOURCE_PASSWORD=Yo8%h#Z95a+S
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE=UTC
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+      - SPRING_DATA_WEB_PAGEABLE_DEFAULT_PAGE_SIZE=10
+      - SPRING_DATA_WEB_PAGEABLE_ONE_INDEXED_PARAMETERS=false
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
