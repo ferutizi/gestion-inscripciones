@@ -1,6 +1,9 @@
 import React from 'react';
-import { Typography, Box, Button } from '@mui/material';
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import CardProyectos from './cardProyectos';
+import LazyLoad from 'react-lazyload';
 import theme from '../theme';
 
 const Projects: React.FC = () => {
@@ -25,7 +28,9 @@ const Projects: React.FC = () => {
   
   
   <Box sx={{ textAlign: 'center', mt: 2, ml: '15rem', marginTop: "0 !important" }}>
-    <img src="./src/media/title-line-orange.png" alt="Decorative Line" style={{ width: '100%', maxWidth: '200px' }} />
+    <LazyLoad>
+      <img src="./src/media/title-line-orange.png" alt="Decorative Line" width={200} />
+    </LazyLoad>
   </Box>
 </Box>
 <Box sx={{ maxWidth: "800px", margin: "0 auto", textAlign: "center"}}>

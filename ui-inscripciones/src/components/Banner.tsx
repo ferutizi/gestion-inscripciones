@@ -1,8 +1,24 @@
-import { Box, CardMedia, Container, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import { useRef, useEffect } from 'react';
 import theme from '../theme';
 import CustomButton from './customButton';
 
 export default function Banner() {
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const highResImage = new Image();
+    highResImage.src = "../src/media/bannerImgedit.webp";
+
+    highResImage.onload = () => {
+      if (imgRef.current) {
+        imgRef.current.src = highResImage.src;
+      }
+    };
+  }, []);
+
   return (
     <Box
       sx={{
@@ -84,14 +100,18 @@ export default function Banner() {
             VER CURSOS
           </CustomButton>
         </Box>
-        <CardMedia
+        <Box
+          ref={imgRef}
           component="img"
-          image='../src/media/bannerImgedit.png'
+          className='banner'
+          src="../src/media/banner-placeholder.webp"
           alt="Banner"
           sx={{
-            width: "400px",
-            display: { xs: "none", lg: "block" },
+            width: '100%',
+            maxWidth: '400px',
+            display: { xs: 'none', lg: 'block' },
           }}
+          loading="eager"
         />
       </Container>
     </Box>

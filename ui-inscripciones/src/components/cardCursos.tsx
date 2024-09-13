@@ -1,5 +1,8 @@
-import React from "react";
-import { Card, CardContent, CardMedia, Typography, CardActions } from "@mui/material";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import CardActions from "@mui/material/CardActions";
+import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/material/styles";
 import CustomButton from "./customButton";
 

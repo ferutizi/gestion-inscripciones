@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import theme from '../theme';
 import CustomButton from './customButton';
 import CardCursos from './cardCursos';
@@ -134,7 +135,7 @@ const Courses: React.FC = () => {
       title="Programación Inicial"
       subtitle="con Python"
       description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-      imageUrl="../src/media/curso.png"
+      imageUrl="../src/media/curso.webp"
       onButtonClick={() => alert("Curso de Python")}
       buttonText="Inscribite"
     />
@@ -144,7 +145,7 @@ const Courses: React.FC = () => {
       title="Programación Inicial"
       subtitle="con Python"
       description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-      imageUrl="../src/media/curso.png"
+      imageUrl="../src/media/curso.webp"
       onButtonClick={() => alert("Curso de Python")}
       buttonText="Inscribite"
     />
@@ -154,7 +155,7 @@ const Courses: React.FC = () => {
       title="Programación Inicial"
       subtitle="con Python"
       description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-      imageUrl="../src/media/curso.png"
+      imageUrl="../src/media/curso.webp"
       onButtonClick={() => alert("Curso de Python")}
       buttonText="Inscribite"
     />
@@ -164,7 +165,7 @@ const Courses: React.FC = () => {
       title="Programación Inicial"
       subtitle="con Python"
       description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-      imageUrl="../src/media/curso.png"
+      imageUrl="../src/media/curso.webp"
       onButtonClick={() => alert("Curso de Python")}
       buttonText="Inscribite"
     />
@@ -174,7 +175,7 @@ const Courses: React.FC = () => {
       title="Programación Inicial"
       subtitle="con Python"
       description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-      imageUrl="../src/media/curso.png"
+      imageUrl="../src/media/curso.webp"
       onButtonClick={() => alert("Curso de Python")}
       buttonText="Inscribite"
     />

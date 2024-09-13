@@ -1,5 +1,14 @@
 import React from 'react';
-import { Box, Typography, TextField, InputAdornment, Button, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import Button from "@mui/material/Button";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import LazyLoad from 'react-lazyload';
 import theme from '../theme';
 
 const Footer: React.FC = () => {
@@ -42,12 +51,16 @@ const Footer: React.FC = () => {
 
        
         <Box >
-          <img src="./src/media/logo-footer.png" alt="Punto&Aprende" style={{ width: 'auto', marginBottom: '20px' }} />
+          <LazyLoad>
+            <img src="./src/media/logo-footer.png" alt="Punto&Aprende" style={{ width: 'auto', marginBottom: '20px' }} />
+          </LazyLoad>
           <List sx={{ padding: 0 }}> 
             {contactItems.map((item, index) => (
               <ListItem key={index} sx={{ padding: 0, marginBottom: '10px' }}> 
                 <ListItemIcon sx={{ minWidth: 'auto', marginRight: '10px' }}> 
-                  <img src={item.icon} alt={item.text} style={{ width: 'auto' }} />
+                  <LazyLoad>
+                    <img src={item.icon} alt={item.text} style={{ width: 'auto' }} />
+                  </LazyLoad>
                 </ListItemIcon>
                 <ListItemText primary={item.text} sx={{ color: theme.palette.primary.main, margin: 0 }} />
               </ListItem>

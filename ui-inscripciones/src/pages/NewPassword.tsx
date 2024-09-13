@@ -1,4 +1,5 @@
-import { Box, Typography } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import CustomInput from "../components/CustomInput";
 import FormButton from "../components/FormButton";
 import LoginLayout from "../layouts/LoginLayout";

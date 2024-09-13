@@ -1,12 +1,18 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Box, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import LazyLoad from 'react-lazyload'
 import theme from '../theme';
 
 const Requeriments: React.FC = () => {
   const iconSrcs = [
-    './src/media/requeriments-icon-1.jpg',
-    './src/media/requeriments-icon-2.jpg',
-    './src/media/requeriments-icon-3.jpg',
+    './src/media/requeriments-icon-1.webp',
+    './src/media/requeriments-icon-2.webp',
+    './src/media/requeriments-icon-3.webp',
   ];
 
   const requisitos = [
@@ -96,7 +102,9 @@ const Requeriments: React.FC = () => {
             {requisitos.map((requisito, index) => (
               <ListItem key={index} sx={{ marginBottom: "1.5rem" }}>
                 <ListItemIcon>
-                  <img src={iconSrcs[index]} alt={`Icono ${index + 1}`} style={{ width: '32px', height: '32px' }} />
+                  <LazyLoad>
+                    <img src={iconSrcs[index]} alt={`Icono ${index + 1}`} width={32} height={32} />
+                  </LazyLoad>
                 </ListItemIcon>
                 <ListItemText 
                   primary={requisito} 
@@ -120,7 +128,9 @@ const Requeriments: React.FC = () => {
             marginTop: { xs: '2rem', sm: '0' }
           }}
         >
-          <img src="./src/media/requeriments1.jpg" alt="Descripción de la imagen" style={{ maxWidth: '70%', height: 'auto' }} />
+          <LazyLoad>
+            <img src="./src/media/requeriments1.webp" width={600} alt="Requisitos de inscripción imagen" style={{ maxWidth: '70%', height: 'auto' }} />
+          </LazyLoad>
         </Box>
       </Box>
     </Box>

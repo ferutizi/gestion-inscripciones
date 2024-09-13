@@ -1,4 +1,7 @@
-import { Box, Typography, FormControlLabel, Checkbox } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 import CustomInput from "../components/CustomInput";
 import FormButton from "../components/FormButton";
 import theme from "../theme";
