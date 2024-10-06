@@ -1,4 +1,5 @@
 import { Box, CardMedia, Container, Typography } from '@mui/material';
+import { Link } from 'react-router-dom'; 
 import theme from '../theme';
 import CustomButton from './customButton';
 
@@ -11,9 +12,9 @@ export default function Banner() {
         position: "relative",
         display: "flex",
         justifyContent: "center",
-        height: { xs: "100vh", lg: "auto" }, 
-        alignItems: { xs: "center", lg: "flex-start" }, 
-        overflow: "hidden", 
+        height: { xs: "100vh", lg: "auto" },
+        alignItems: { xs: "center", lg: "flex-start" },
+        overflow: "hidden",
       }}
     >
       <Container
@@ -31,19 +32,19 @@ export default function Banner() {
           zIndex: 1,
           width: "100%",
           height: "100%",
-          flexDirection: { xs: "column", lg: "row" }, 
+          flexDirection: { xs: "column", lg: "row" },
         }}
       >
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: { xs: "center", lg: "flex-start" }, 
-            alignItems: { xs: "center", lg: "flex-start" }, 
+            justifyContent: { xs: "center", lg: "flex-start" },
+            alignItems: { xs: "center", lg: "flex-start" },
             height: "80%",
-            marginTop: { xs: "0", lg: "-4rem" }, 
+            marginTop: { xs: "0", lg: "-4rem" },
             textAlign: { xs: "center", lg: "left" },
-            width: { xs: "100%", lg: "auto" }, 
+            width: { xs: "100%", lg: "auto" },
           }}
         >
           <Typography
@@ -59,7 +60,7 @@ export default function Banner() {
               backgroundColor: "#fff",
               padding: "10px 25px",
               marginBottom: "0 !important",
-              margin: { xs: "0 auto 1rem", lg: "0" }, 
+              margin: { xs: "0 auto 1rem", lg: "0" },
             }}
           >
             Nunca pares de aprender
@@ -72,26 +73,39 @@ export default function Banner() {
             sx={{
               color: theme.palette.primary.contrastText,
               paddingY: "1rem",
+              fontSize: {
+                xs: "2.5rem", 
+                md: "3rem",
+                lg: "4rem",
+              },
+              margin: {
+                xs: "1rem",
+                lg: "0"
+              },
+              
             }}
           >
             Desarrolla tus habilidades con cursos en línea
           </Typography>
-          <CustomButton
-            variant="contained"
-            color="secondary"
-            sx={{
-              color: '#fff',
-              fontWeight: "normal",
-              letterSpacing: "0.05em",
-              boxShadow: "none",
-              padding: "1rem 2rem 1rem 2rem",
-              '&:hover': { boxShadow: "none"},
-              marginTop: "1rem", 
-            }}
-            colorVariant={'orange'}
-          >
-            VER CURSOS
-          </CustomButton>
+          
+          <Link to="/cursos" style={{ textDecoration: 'none' }}>
+            <CustomButton
+              variant="contained"
+              color="secondary"
+              sx={{
+                color: '#fff',
+                fontWeight: "normal",
+                letterSpacing: "0.05em",
+                boxShadow: "none",
+                padding: "1rem 2rem 1rem 2rem",
+                '&:hover': { boxShadow: "none" },
+                marginTop: "1rem",
+              }}
+              colorVariant={'orange'}
+            >
+              VER CURSOS
+            </CustomButton>
+          </Link>
         </Box>
         <CardMedia
           component="img"
@@ -99,7 +113,7 @@ export default function Banner() {
           alt="Banner"
           sx={{
             width: "400px",
-            display: { xs: "none", lg: "block" }, 
+            display: { xs: "none", lg: "block" },
           }}
         />
       </Container>

@@ -11,7 +11,7 @@ interface Usuario {
   apellido: string;
   email: string;
   fechaNacimiento: string;
-  rolId: number;
+  rol: string;
   rolDescripcion: string;
 }
 
@@ -24,7 +24,7 @@ const EditarUsuarios: React.FC = () => {
     apellido: '',
     email: '',
     fechaNacimiento: '',
-    rolId: 0,
+    rol: 'VISITANTE',
     rolDescripcion: ''
   });
 
@@ -48,7 +48,7 @@ const EditarUsuarios: React.FC = () => {
       apellido: usuario.apellido,
       email: usuario.email,
       fechaNacimiento: usuario.fechaNacimiento,
-      rolId: usuario.rolId,
+      rol: usuario.rol,
       rolDescripcion: usuario.rolDescripcion
     });
     setOpenDialog(true);
@@ -117,7 +117,7 @@ const EditarUsuarios: React.FC = () => {
                 <TableCell>{usuario.apellido}</TableCell>
                 <TableCell>{usuario.email}</TableCell>
                 <TableCell>{new Date(usuario.fechaNacimiento).toLocaleDateString()}</TableCell>
-                <TableCell>{usuario.rolDescripcion}</TableCell>
+                <TableCell>{usuario.rol}</TableCell>
                 <TableCell>
                   <IconButton onClick={() => handleOpenDialog(usuario)} color="primary">
                     <EditIcon />
@@ -170,17 +170,19 @@ const EditarUsuarios: React.FC = () => {
             InputLabelProps={{ shrink: true }}
           />
           <TextField
-            label="Rol"
-            name="rolId"
-            value={formData.rolId}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            select
-          >
-            <MenuItem value={1}>Administrador</MenuItem>
-            <MenuItem value={2}>Visitante</MenuItem>
-          </TextField>
+  label="Rol"
+  name="rol" 
+  value={formData.rol}
+  onChange={handleChange}
+  fullWidth
+  margin="normal"
+  select
+>
+  <MenuItem value="ADMINISTRADOR">ADMINISTRADOR</MenuItem>
+  <MenuItem value="VISITANTE">VISITANTE</MenuItem>
+  <MenuItem value="MENTOR">MENTOR</MenuItem>
+  <MenuItem value="ESTUDIANTE">ESTUDIANTE</MenuItem>
+</TextField>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">

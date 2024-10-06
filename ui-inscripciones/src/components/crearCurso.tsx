@@ -5,7 +5,6 @@ import {
 import UploadWidget from '../components/uploadWidget';
 import api from '../utils/axiosConfig';
 
-
 const CrearCurso: React.FC = () => {
   const [mentores, setMentores] = useState<{ id: number; nombreCompleto: string }[]>([]);
   const [ongs, setOngs] = useState<{ id: number; nombre: string }[]>([]);
@@ -26,69 +25,61 @@ const CrearCurso: React.FC = () => {
   const [isFormValid, setIsFormValid] = useState(false);
   const [openDialog, setOpenDialog] = useState(false); 
 
-  
   useEffect(() => {
     const fetchMentores = async () => {
-        try {
-          const response = await api.get('/api/mentor/listar');
-          if (response.data && response.data.content) {
-            setMentores(
-              response.data.content.map((mentor: { id: number; nombreUsuario: string; apellidoUsuario: string }) => ({
-                id: mentor.id,
-                nombreCompleto: `${mentor.nombreUsuario} ${mentor.apellidoUsuario}`,
-              }))
-            );
-          } else if (response.data) {
-            setMentores(
-              response.data.map((mentor: { id: number; nombreUsuario: string; apellidoUsuario: string }) => ({
-                id: mentor.id,
-                nombreCompleto: `${mentor.nombreUsuario} ${mentor.apellidoUsuario}`,
-              }))
-            );
-          }
-        } catch (error) {
-          console.error('Error fetching mentores:', error);
+      try {
+        const response = await api.get('/api/usuario/listar');
+        if (response.data && response.data.content) {
+          const mentoresFiltrados = response.data.content.filter(
+            (usuario: { rol: string }) => usuario.rol === 'MENTOR'
+          );
+          setMentores(
+            mentoresFiltrados.map((mentor: { id: number; nombre: string; apellido: string }) => ({
+              id: mentor.id,
+              nombreCompleto: `${mentor.nombre} ${mentor.apellido}`,
+            }))
+          );
         }
-      };
-  
-      fetchMentores();
-    }, []);
+      } catch (error) {
+        console.error('Error fetching usuarios:', error);
+      }
+    };
 
-  
+    fetchMentores();
+  }, []);
+
   useEffect(() => {
     const fetchOngs = async () => {
-        try {
-          const response = await api.get('/api/ong/listar');
-          if (response.data && response.data.content) {
-            setOngs(
-              response.data.content.map((ong: { id: number; nombre: string }) => ({
-                id: ong.id,
-                nombre: ong.nombre,
-              }))
-            );
-          } else if (response.data) {
-            setOngs(
-              response.data.map((ong: { id: number; nombre: string }) => ({
-                id: ong.id,
-                nombre: ong.nombre,
-              }))
-            );
-          }
-        } catch (error) {
-          console.error('Error fetching ONGs:', error);
+      try {
+        const response = await api.get('/api/ong/listar');
+        if (response.data && response.data.content) {
+          setOngs(
+            response.data.content.map((ong: { id: number; nombre: string }) => ({
+              id: ong.id,
+              nombre: ong.nombre,
+            }))
+          );
+        } else if (response.data) {
+          setOngs(
+            response.data.map((ong: { id: number; nombre: string }) => ({
+              id: ong.id,
+              nombre: ong.nombre,
+            }))
+          );
         }
-      };
-  
-      fetchOngs();
-    }, []);
+      } catch (error) {
+        console.error('Error fetching ONGs:', error);
+      }
+    };
 
-  
+    fetchOngs();
+  }, []);
+
   useEffect(() => {
     const isValid = Object.values(curso).every((value) => value !== '');
     setIsFormValid(isValid);
   }, [curso]);
 
- 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCurso({
       ...curso,
@@ -96,13 +87,11 @@ const CrearCurso: React.FC = () => {
     });
   };
 
-  
   const handleImageUpload = (url: string | null) => {
     setImageUrl(url);
-    setCurso({ ...curso, url: url || '' }); 
+    setCurso({ ...curso, url: url || '' });
   };
 
-  
   const handleSubmit = async () => {
     try {
       const response = await api.post('/api/curso/crear', curso);
@@ -122,25 +111,22 @@ const CrearCurso: React.FC = () => {
         mentorId: '',
       });
       setImageUrl(null);
-      setOpenDialog(false); 
+      setOpenDialog(false);
     } catch (error) {
       console.error('Error al crear el curso:', error);
       alert('Error al crear el curso');
     }
   };
 
-  
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
 
   return (
     <Container>
-
       <Button variant="contained" color="primary" onClick={handleOpenDialog}>
         Crear un nuevo curso
       </Button>
 
-     
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle>Crear Nuevo Curso</DialogTitle>
         <DialogContent>

@@ -3,6 +3,7 @@ import { Box, Typography } from '@mui/material';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import CustomButton from '../components/customButton';
 import theme from '../theme';
+import { Link } from 'react-router-dom'; 
 
 const NotFound: React.FC = () => {
   return (
@@ -17,10 +18,12 @@ const NotFound: React.FC = () => {
       <Typography variant="h2" sx={{ marginBottom: '1rem' }}>
         Página no encontrada
       </Typography>
-      <Typography variant="h6" fontSize= "16px" sx={{ marginBottom: '2rem' }}>
+      <Typography variant="h6" fontSize="16px" sx={{ marginBottom: '2rem' }}>
         La página que estás buscando no existe.
       </Typography>
-      <CustomButton
+
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <CustomButton
           colorVariant="green"
           sx={{
             '&:hover': {
@@ -32,6 +35,7 @@ const NotFound: React.FC = () => {
         >
           Volver al inicio
         </CustomButton>
+      </Link>
     </Box>
   );
 };

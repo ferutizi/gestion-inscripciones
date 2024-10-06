@@ -8,4 +8,8 @@ export type UserDataType = {
   sub: string,
   birthday: string,
   rolId?: number;
+  rol: string;
+  id: string;
 }
+
+

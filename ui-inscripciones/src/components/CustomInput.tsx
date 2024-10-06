@@ -4,9 +4,11 @@ import { Input as MUIInput, InputProps as MUIInputProps } from "@mui/material";
 import { FormLabel as MUILabel } from "@mui/material";
 
 interface InputFieldProps extends MUIInputProps {
-  type: "email" | "text" | "password",
+  type: "email" | "text" | "password" | "date",
   placeholder: string,
-  label: string
+  label: string,
+  value: string, 
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
 }
 
 const StyledInput = styled(MUIInput)(() => ({
@@ -28,13 +30,18 @@ const StyledLabel = styled(MUILabel)(() => ({
   fontWeight: "400",
   lineHeight: "21px",
   textAlign: "left"
-}))
+}));
 
-export default function InputField({type, placeholder, label}: InputFieldProps) {
+export default function InputField({ type, placeholder, label, value, onChange }: InputFieldProps) {
   return (
     <FormControl>
       <StyledLabel>{label}</StyledLabel>
-      <StyledInput type={type} placeholder={placeholder} />
+      <StyledInput 
+        type={type} 
+        placeholder={placeholder} 
+        value={value} 
+        onChange={onChange} 
+      />
     </FormControl>
   );
 }

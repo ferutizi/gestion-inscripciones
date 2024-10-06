@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, CircularProgress } from '@mui/material'; // Agregamos CircularProgress
+import { Box, Typography, IconButton, CircularProgress } from '@mui/material'; 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import EditarProyectos from '../components/editarProyectos';
@@ -7,7 +7,7 @@ import CrearProyectos from '../components/crearProyectos';
 import CrearCurso from '../components/crearCurso';
 import CoursesEdit from '../components/coursesEdit';
 import EditarUsuarios from '../components/editarUsuario';
-// import axios from 'axios';
+import CrearUsuario from '../components/crearUsuario';
 import api from '../utils/axiosConfig';
 
 interface Usuario {
@@ -21,12 +21,13 @@ interface Usuario {
 }
 
 const PanelAdmin: React.FC = () => {
-  const [userData, setUserData] = useState<{ family_name: string; email: string; rolId: number | null }>({
+  const [userData, setUserData] = useState<{ family_name: string; email: string; rol: string | null }>({
     family_name: '',
     email: '',
-    rolId: null
+    rol: null
   });
 
+  const [userDataLogin, setUserDataLogin] = useState<any>(null); 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]); 
   const [loading, setLoading] = useState(true); 
   const navigate = useNavigate();
@@ -40,6 +41,12 @@ const PanelAdmin: React.FC = () => {
         family_name: parsedUserData.family_name,
         email: parsedUserData.email
       }));
+    }
+
+    const storedUserDataLogin = localStorage.getItem('userDataLogin'); 
+    if (storedUserDataLogin) {
+      const parsedUserDataLogin = JSON.parse(storedUserDataLogin);
+      setUserDataLogin(parsedUserDataLogin); 
     }
 
     const fetchUsuarios = async () => {
@@ -61,21 +68,20 @@ const PanelAdmin: React.FC = () => {
       if (usuarioLogueado) {
         setUserData((prevData) => ({
           ...prevData,
-          rolId: usuarioLogueado.rolId
+          rol: usuarioLogueado.rolDescripcion 
         }));
       }
     }
   }, [userData.email, usuarios]);
 
   useEffect(() => {
-    if (userData.rolId !== null) {
-      if (userData.rolId !== 1) {
-        navigate('/'); 
-      } else {
-        setLoading(false); 
-      }
+    const storedRole = localStorage.getItem('userRole');
+    if (storedRole !== "ADMINISTRADOR") {
+      navigate('/'); 
+    } else {
+      setLoading(false); 
     }
-  }, [userData.rolId, navigate]);
+  }, [navigate]);
 
   const handleGoBack = () => {
     navigate('/');
@@ -109,14 +115,14 @@ const PanelAdmin: React.FC = () => {
       </Box>
 
       <Typography variant="h6" color="textPrimary" sx={{ margin: '16px 0' }}>
-        Bienvenido, {userData.family_name}
+        Bienvenido, {userData.family_name || userDataLogin.nombre + " " + userDataLogin.apellido}
       </Typography>
       <Typography variant="body1" color="textSecondary" sx={{ marginBottom: '16px' }}>
-        Correo: {userData.email}
+        Correo: {userData.email || userDataLogin.email}
       </Typography>
-      {userData.rolId && (
+      {userData.rol && (
         <Typography variant="body1" color="textSecondary" sx={{ marginBottom: '16px' }}>
-          ID del Rol: {userData.rolId}
+          Rol: {userData.rol || userDataLogin.rol}
         </Typography>
       )}
 
@@ -126,6 +132,7 @@ const PanelAdmin: React.FC = () => {
         <CoursesEdit />
         <CrearCurso />
         <EditarUsuarios />
+        <CrearUsuario />
       </Box>
     </Box>
   );

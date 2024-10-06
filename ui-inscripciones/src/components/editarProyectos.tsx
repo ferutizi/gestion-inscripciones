@@ -12,6 +12,38 @@ interface Proyecto {
   fechaCreacion: string;
 }
 
+const useFormValidation = (formData: Omit<Proyecto, 'id'>, touched: { nombre: boolean; descripcion: boolean }) => {
+  const [errors, setErrors] = useState({
+    nombre: '',
+    descripcion: '',
+  });
+
+  useEffect(() => {
+    const validate = () => {
+      const newErrors = {
+        nombre: '',
+        descripcion: '',
+      };
+
+      if (touched.nombre && (formData.nombre.trim().length < 5 || formData.nombre.trim().length > 30)) {
+        newErrors.nombre = 'El nombre debe tener entre 5 y 30 caracteres.';
+      }
+
+      if (touched.descripcion && (formData.descripcion.trim().length < 110 || formData.descripcion.trim().length > 300)) {
+        newErrors.descripcion = 'La descripción debe tener entre 110 y 300 caracteres.';
+      }
+
+      setErrors(newErrors);
+    };
+
+    validate();
+  }, [formData, touched]);
+
+  const isFormValid = !errors.nombre && !errors.descripcion;
+
+  return { errors, isFormValid };
+};
+
 const EditarProyectos: React.FC = () => {
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -23,11 +55,13 @@ const EditarProyectos: React.FC = () => {
     fechaCreacion: ''
   });
 
+  const [touched, setTouched] = useState({ nombre: false, descripcion: false });
+
   useEffect(() => {
     const fetchProyectos = async () => {
       try {
         const response = await api.get('/api/proyecto/listar');
-        setProyectos(response.data);
+        setProyectos(response.data.content);
       } catch (error) {
         console.error('Error fetching proyectos:', error);
       }
@@ -35,6 +69,8 @@ const EditarProyectos: React.FC = () => {
 
     fetchProyectos();
   }, []);
+
+  const { errors, isFormValid } = useFormValidation(formData, touched);
 
   const handleOpenDialog = (proyecto: Proyecto) => {
     setSelectedProyecto(proyecto);
@@ -44,6 +80,7 @@ const EditarProyectos: React.FC = () => {
       url: proyecto.url,
       fechaCreacion: proyecto.fechaCreacion
     });
+    setTouched({ nombre: false, descripcion: false });
     setOpenDialog(true);
   };
 
@@ -60,8 +97,12 @@ const EditarProyectos: React.FC = () => {
     });
   };
 
+  const handleBlur = (field: 'nombre' | 'descripcion') => {
+    setTouched((prevTouched) => ({ ...prevTouched, [field]: true }));
+  };
+
   const handleEdit = async () => {
-    if (selectedProyecto) {
+    if (selectedProyecto && isFormValid) {
       try {
         await api.put(`/api/proyecto/editar/${selectedProyecto.id}`, formData);
         setProyectos(proyectos.map(proyecto => proyecto.id === selectedProyecto.id ? { ...proyecto, ...formData } : proyecto));
@@ -124,16 +165,22 @@ const EditarProyectos: React.FC = () => {
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
+            onBlur={() => handleBlur('nombre')}
             fullWidth
             margin="normal"
+            error={!!errors.nombre && touched.nombre}
+            helperText={touched.nombre && errors.nombre}
           />
           <TextField
             label="Descripción"
             name="descripcion"
             value={formData.descripcion}
             onChange={handleChange}
+            onBlur={() => handleBlur('descripcion')}
             fullWidth
             margin="normal"
+            error={!!errors.descripcion && touched.descripcion}
+            helperText={touched.descripcion && errors.descripcion}
           />
           <TextField
             label="URL"
@@ -159,7 +206,7 @@ const EditarProyectos: React.FC = () => {
           <Button onClick={handleCloseDialog} color="primary">
             Cancelar
           </Button>
-          <Button onClick={handleEdit} color="primary">
+          <Button onClick={handleEdit} color="primary" disabled={!isFormValid}>
             Guardar
           </Button>
         </DialogActions>

@@ -3,10 +3,8 @@ import {
   Button, Container, TextField, MenuItem, Typography, Box, Dialog, DialogActions, DialogContent, DialogTitle
 } from '@mui/material';
 import axios from 'axios';
-import UploadWidget from '../components/uploadWidget';  // Importar el componente UploadWidget
+import UploadWidget from '../components/uploadWidget';
 import CoursesEdit from './coursesEdit';
-
-//ARCHIVO DE PRUEBA, SIN USOS PERO NO BORRAR
 
 const AdminCourses: React.FC = () => {
   const [mentores, setMentores] = useState<{ id: number; nombreCompleto: string }[]>([]);
@@ -15,7 +13,7 @@ const AdminCourses: React.FC = () => {
     titulo: '',
     descripcion: '',
     categoria: '',
-    url: '', // Aquí se guardará la URL de la imagen
+    url: '', 
     lenguaje: '',
     duracion: '',
     semanal: '',
@@ -24,11 +22,10 @@ const AdminCourses: React.FC = () => {
     ongId: '',
     mentorId: '',
   });
-  const [imageUrl, setImageUrl] = useState<string | null>(null); // Estado para la URL de la imagen cargada
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isFormValid, setIsFormValid] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false); // Estado para controlar la apertura del diálogo
+  const [openDialog, setOpenDialog] = useState(false);
 
-  // Fetch Mentores
   useEffect(() => {
     const fetchMentores = async () => {
       try {
@@ -56,7 +53,6 @@ const AdminCourses: React.FC = () => {
     fetchMentores();
   }, []);
 
-  // Fetch ONGs
   useEffect(() => {
     const fetchOngs = async () => {
       try {
@@ -84,13 +80,11 @@ const AdminCourses: React.FC = () => {
     fetchOngs();
   }, []);
 
-  // Validación del formulario
   useEffect(() => {
     const isValid = Object.values(curso).every((value) => value !== '');
     setIsFormValid(isValid);
   }, [curso]);
 
-  // Manejar cambios en el formulario
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCurso({
       ...curso,
@@ -98,26 +92,23 @@ const AdminCourses: React.FC = () => {
     });
   };
 
-  // Función para manejar la URL de la imagen cargada
   const handleImageUpload = (url: string | null) => {
     setImageUrl(url);
-    setCurso({ ...curso, url: url || '' }); // Actualizar la URL en el curso
+    setCurso({ ...curso, url: url || '' });
   };
 
-  // Enviar datos del formulario
   const handleSubmit = async () => {
     try {
       const response = await axios.post('http://localhost:8080/api/curso/crear', curso);
       console.log('Curso creado:', response.data);
       alert('Curso creado exitosamente');
-      setOpenDialog(false); // Cerrar el diálogo tras crear el curso
+      setOpenDialog(false); 
     } catch (error) {
       console.error('Error al crear el curso:', error);
       alert('Error al crear el curso');
     }
   };
 
-  // Funciones para abrir y cerrar el diálogo
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
 
@@ -131,7 +122,6 @@ const AdminCourses: React.FC = () => {
         Crear un nuevo curso
       </Button>
 
-      {/* Dialogo para crear el curso */}
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle>Crear Nuevo Curso</DialogTitle>
         <DialogContent>
@@ -189,7 +179,7 @@ const AdminCourses: React.FC = () => {
             required
             fullWidth
             margin="normal"
-            disabled // Deshabilita el campo para que no sea editable
+            disabled 
           />
 
           <TextField

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Box, Button } from '@mui/material';
-// import axios from 'axios';
+import { Typography, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Slide } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import CardProyectos from './cardProyectos';
 import theme from '../theme';
 import api from '../utils/axiosConfig';
@@ -12,18 +12,37 @@ interface Proyecto {
   url: string;
 }
 
-const Projects: React.FC = () => {
+interface ProjectsProps {
+  showButton?: boolean;
+  limitProjects?: boolean; 
+}
+
+const Transition = React.forwardRef(function Transition(props: any, ref: React.Ref<any>) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const Projects: React.FC<ProjectsProps> = ({ showButton = true, limitProjects = true }) => {
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [limit, setLimit] = useState(6); 
+  const [limit, ] = useState(limitProjects ? 6 : 0); 
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Proyecto | null>(null);
+  const navigate = useNavigate();
 
   const fetchProyectos = async (limit: number) => {
     try {
-      const response = await api.get(`/api/proyecto/listar`, {   // Usar la ruta relativa
+      const response = await api.get(`/api/proyecto/listar`, {
         params: { limit },
       });
       console.log('Respuesta del servidor:', response.data);
-      setProyectos(response.data);
+
+      if (response.data && Array.isArray(response.data.content)) {
+        setProyectos(response.data.content);
+      } else {
+        console.error('La respuesta no contiene proyectos en content:', response.data);
+        setProyectos([]);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error('Error al obtener proyectos:', error);
@@ -35,16 +54,27 @@ const Projects: React.FC = () => {
     fetchProyectos(limit);
   }, [limit]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const handleViewAll = () => {
-    setLimit(0); 
+    navigate('/proyectos'); 
   };
 
-  const handleButtonClick = () => {
-    console.log('Botón de proyecto clickeado');
+  const handleOpenModal = (proyecto: Proyecto) => {
+    setSelectedProject(proyecto);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedProject(null);
   };
 
   return (
     <Box sx={{ padding: 3 }}>
+
       <Box sx={{ mb: 3 }}>
         <Typography
           variant="h2"
@@ -70,9 +100,9 @@ const Projects: React.FC = () => {
       </Box>
 
       {loading ? (
-        <Typography variant="h6" sx={{textAlign: "center"}}>Cargando proyectos...</Typography>
+        <Typography variant="h6" sx={{ textAlign: 'center' }}>Cargando proyectos...</Typography>
       ) : proyectos.length === 0 ? (
-        <Typography variant="h6" sx={{textAlign: "center"}}>No se encontraron proyectos.</Typography>
+        <Typography variant="h6" sx={{ textAlign: 'center' }}>No se encontraron proyectos.</Typography>
       ) : (
         <Box sx={{ margin: '0 auto', maxWidth: '1200px', display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
           {proyectos.map((proyecto) => (
@@ -82,36 +112,62 @@ const Projects: React.FC = () => {
               title={proyecto.nombre}
               text={proyecto.descripcion}
               buttonText="Más Información"
-              onButtonClick={handleButtonClick}
+              onButtonClick={() => handleOpenModal(proyecto)}
             />
           ))}
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Button
-          variant="contained"
-          sx={{
-            marginTop: '2.5rem',
-            backgroundColor: '#ffffff',
-            color: theme.palette.primary.main,
-            boxShadow: 'none',
-            border: `1px solid ${theme.palette.primary.main}`,
-            borderRadius: '12px',
-            paddingLeft: '3rem',
-            paddingRight: '3rem',
-            '&:hover': {
-              backgroundColor: theme.palette.secondary.main,
-              color: '#fff',
+      {showButton && ( 
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Button
+            variant="contained"
+            sx={{
+              marginTop: '2.5rem',
+              backgroundColor: '#ffffff',
+              color: theme.palette.primary.main,
               boxShadow: 'none',
-              border: `1px solid ${theme.palette.secondary.main}`,
-            },
-          }}
-          onClick={handleViewAll}
-        >
-          Ver todos
-        </Button>
-      </Box>
+              border: `1px solid ${theme.palette.primary.main}`,
+              borderRadius: '12px',
+              paddingLeft: '3rem',
+              paddingRight: '3rem',
+              '&:hover': {
+                backgroundColor: theme.palette.secondary.main,
+                color: '#fff',
+                boxShadow: 'none',
+                border: `1px solid ${theme.palette.secondary.main}`,
+              },
+            }}
+            onClick={handleViewAll}
+          >
+            Ver todos
+          </Button>
+        </Box>
+      )}
+
+      <Dialog 
+        open={openModal} 
+        onClose={handleCloseModal} 
+        maxWidth="md"
+        TransitionComponent={Transition}
+      >
+        <DialogTitle sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+          {selectedProject?.nombre}
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', maxWidth: "300px" }}>
+          <Box sx={{ mb: 2 }}>
+            <img src={selectedProject?.url} alt={selectedProject?.nombre} style={{ maxWidth: '100px', margin: '0 auto' }} />
+          </Box>
+          <Typography variant="body1" color="#696984" sx={{ lineHeight: '1.5', textAlign: 'center' }}>
+            {selectedProject?.descripcion}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

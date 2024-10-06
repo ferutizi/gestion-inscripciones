@@ -12,6 +12,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import CustomButton from './customButton';
+import BuildCircleIcon from '@mui/icons-material/BuildCircle';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Avatar from '@mui/material/Avatar';
@@ -36,6 +37,7 @@ export default function DrawerAppBar(props: Props) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const ilgenuOpen = Boolean(anchorEl);
   const navigate = useNavigate();
+  
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -43,7 +45,7 @@ export default function DrawerAppBar(props: Props) {
 
   const isLogged = localStorage.getItem('isLogged') === 'true';
   const userData = isLogged ? JSON.parse(localStorage.getItem('userData') || '{}') : null;
-
+  const userDataLogin = isLogged ? JSON.parse(localStorage.getItem('userDataLogin') || '{}') : null;
 
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -61,6 +63,8 @@ export default function DrawerAppBar(props: Props) {
     // navigate('/login');
     // window.location.reload();
   };
+
+  const userRole = localStorage.getItem('userRole');
 
   // const drawer = (
   //   <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
@@ -97,7 +101,7 @@ export default function DrawerAppBar(props: Props) {
       <Toolbar sx={{ paddingLeft: "0 !important", paddingRight: "0 !important" }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '0 1rem' }}>
      
-          <Box component="img" src="/media/logo-navbar.png" alt="Logo" sx={{ width: 'auto', display: { xs: 'block', lg: 'block' }, margin: { xs: '0 auto', lg: '0' } }} />
+          <Box component="img" src="/media/logo-navbar.png" alt="Logo" sx={{ cursor: "pointer", width: 'auto', display: { xs: 'block', lg: 'block' }, margin: { xs: '0 auto', lg: '0' } }}       onClick={() => navigate('/')}  />
 
           <Box sx={{ display: { xs: 'none', lg: 'flex' }, gap: '2rem' }}>
           {navItems.map((item) => (
@@ -135,6 +139,7 @@ export default function DrawerAppBar(props: Props) {
                     INICIAR SESION
                   </CustomButton>
                 </Link>
+                <Link to="/register">
                 <CustomButton
                   colorVariant="green"
                   sx={{
@@ -145,6 +150,7 @@ export default function DrawerAppBar(props: Props) {
                 >
                   REGISTRARSE
                 </CustomButton>
+                </Link>
               </>
             ) : (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -159,28 +165,40 @@ export default function DrawerAppBar(props: Props) {
                   fontWeight={500}
                   sx={{ color: '#fff', display: 'flex', alignItems: 'center' }}
                 >
-                  {userData.name}
+                  {userData.name || userDataLogin.nombre + ' ' + userDataLogin.apellido }
                   <KeyboardArrowDown sx={{ ml: 1 }} />
                 </Typography>
                 <Menu
-                  anchorEl={anchorEl}
-                  open={ilgenuOpen}
-                  onClose={handleMenuClose}
-                  sx={{ mt: 1 }}
-                >
-                  <MenuItem onClick={() => navigate('/profile')} sx={{ display: 'flex', alignItems: 'center', paddingY: '0.5rem' }}>
-                    <Person2Icon sx={{ mr: 1 }} />
-                    <Typography variant="body1" sx={{ flexGrow: 1 }}>
-                      Perfil
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout} sx={{ display: 'flex', alignItems: 'center', paddingY: '0.5rem' }}>
-                    <CloseIcon sx={{ mr: 1 }} />
-                    <Typography variant="body1" sx={{ flexGrow: 1 }}>
-                      Cerrar Sesión
-                    </Typography>
-                  </MenuItem>
-                </Menu>
+  anchorEl={anchorEl}
+  open={ilgenuOpen}
+  onClose={handleMenuClose}
+  sx={{ mt: 1 }}
+>
+  <MenuItem onClick={() => navigate('/profile')} sx={{ display: 'flex', alignItems: 'center', paddingY: '0.5rem' }}>
+    <Person2Icon sx={{ mr: 1 }} />
+    <Typography variant="body1" sx={{ flexGrow: 1 }}>
+      Perfil
+    </Typography>
+  </MenuItem>
+  
+  {userRole === 'ADMINISTRADOR' && ( 
+    <MenuItem onClick={() => navigate('/admin')} sx={{ display: 'flex', alignItems: 'center', paddingY: '0.5rem' }}>
+      <BuildCircleIcon sx={{ mr: 1 }} />
+      <Typography variant="body1" sx={{ flexGrow: 1 }}>
+        Administrador
+      </Typography>
+    </MenuItem>
+  )}
+
+  <MenuItem onClick={handleLogout} sx={{ display: 'flex', alignItems: 'center', paddingY: '0.5rem' }}>
+    <CloseIcon sx={{ mr: 1 }} />
+    <Typography variant="body1" sx={{ flexGrow: 1 }}>
+      Cerrar Sesión
+    </Typography>
+  </MenuItem>
+</Menu>
+
+
               </Box>
             )}
           </Box>
@@ -268,6 +286,7 @@ export default function DrawerAppBar(props: Props) {
             INICIAR SESION
           </CustomButton>
         </Link>
+        <Link to="/register">
         <CustomButton
           colorVariant="green"
           sx={{
@@ -279,49 +298,72 @@ export default function DrawerAppBar(props: Props) {
           }}
         >
           REGISTRARSE
-        </CustomButton>
+        </CustomButton></Link>
       </>
     ) : (
       <Box sx={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <Typography variant="h6" sx={{ color: '#fff', marginBottom: '1rem' }}>
-          {userData.name}
-        </Typography>
-        <Button
-          sx={{ 
-            color: '#fff', 
-            textTransform: 'none', 
-            transition: 'color 0.3s ease', 
-            '&:hover': { color: theme.palette.secondary.main }, 
-            display: 'flex', 
-            alignItems: 'center', 
-            width: 'auto', 
-            textAlign: 'left', 
-            marginBottom: '0.5rem',
-            minWidth: 'auto', 
-          }}
-          onClick={() => navigate('/profile')}
-        >
-          <Person2Icon sx={{ mr: 1 }} />
-          Perfil
-        </Button>
-        <Button
-          sx={{ 
-            color: '#fff', 
-            textTransform: 'none', 
-            transition: 'color 0.3s ease', 
-            '&:hover': { color: theme.palette.secondary.main }, 
-            display: 'flex', 
-            alignItems: 'center', 
-            width: 'auto', 
-            textAlign: 'left',
-            minWidth: 'auto', 
-          }}
-          onClick={handleLogout}
-        >
-          <CloseIcon sx={{ mr: 1 }} />
-          Cerrar Sesión
-        </Button>
-      </Box>
+  <Typography variant="h6" sx={{ color: '#fff', marginBottom: '1rem' }}>
+    {userData.name || userDataLogin.nombre + ' ' + userDataLogin.apellido }
+  </Typography>
+  
+  <Button
+    sx={{ 
+      color: '#fff', 
+      textTransform: 'none', 
+      transition: 'color 0.3s ease', 
+      '&:hover': { color: theme.palette.secondary.main }, 
+      display: 'flex', 
+      alignItems: 'center', 
+      width: 'auto', 
+      textAlign: 'left', 
+      minWidth: 'auto', 
+    }}
+    onClick={() => navigate('/profile')}
+  >
+    <Person2Icon sx={{ mr: 1 }} />
+    Perfil
+  </Button>
+  
+  {userRole === 'ADMINISTRADOR' && (  
+    <Button
+      sx={{ 
+        color: '#fff', 
+        textTransform: 'none', 
+        transition: 'color 0.3s ease', 
+        '&:hover': { color: theme.palette.secondary.main }, 
+        display: 'flex', 
+        alignItems: 'center', 
+        width: 'auto', 
+        textAlign: 'left',
+        minWidth: 'auto', 
+      }}
+      onClick={() => navigate('/admin')}
+    >
+      <BuildCircleIcon sx={{ mr: 1 }} />
+      Administrador
+    </Button>
+  )}
+
+  <Button
+    sx={{ 
+      color: '#fff', 
+      textTransform: 'none', 
+      transition: 'color 0.3s ease', 
+      '&:hover': { color: theme.palette.secondary.main }, 
+      display: 'flex', 
+      alignItems: 'center', 
+      width: 'auto', 
+      textAlign: 'left',
+      minWidth: 'auto', 
+    }}
+    onClick={handleLogout}
+  >
+    <CloseIcon sx={{ mr: 1 }} />
+    Cerrar Sesión
+  </Button>
+</Box>
+
+
     )}
   </Box>
 </Drawer>

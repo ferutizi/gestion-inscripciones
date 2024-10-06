@@ -15,7 +15,6 @@ const EditarCursos: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null); 
 
-  // Fetch Cursos
   useEffect(() => {
     const fetchCursos = async () => {
       try {
@@ -29,7 +28,6 @@ const EditarCursos: React.FC = () => {
     fetchCursos();
   }, []);
 
-  // Fetch Mentores
   useEffect(() => {
     const fetchMentores = async () => {
         try {
@@ -57,7 +55,6 @@ const EditarCursos: React.FC = () => {
       fetchMentores();
     }, []);
 
-  // Fetch ONGs
   useEffect(() => {
     const fetchOngs = async () => {
         try {

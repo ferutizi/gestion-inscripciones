@@ -8,7 +8,7 @@ import DrawerAppBar from './components/NavBar';
 const App: React.FC = () => {
   const location = useLocation();
 
-  const hideNavbarAndFooter = location.pathname === '/login' || location.pathname === '/admin';
+  const hideNavbarAndFooter = location.pathname === '/login' || location.pathname === '/admin' || location.pathname === '/register' || location.pathname === '/forgot-password';
   
 
   return (
