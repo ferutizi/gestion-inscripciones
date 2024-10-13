@@ -28,6 +28,7 @@ export default function Login() {
       const userDataLogin = response.data; 
       localStorage.setItem('userDataLogin', JSON.stringify(userDataLogin));
       localStorage.setItem('userRole', userDataLogin.rol); 
+      localStorage.setItem('id', userDataLogin.id); 
       localStorage.setItem('isLogged', 'true'); 
 
       navigate('/'); 

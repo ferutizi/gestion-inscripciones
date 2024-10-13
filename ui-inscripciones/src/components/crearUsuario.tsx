@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Container, TextField, MenuItem, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import UploadIcon from '@mui/icons-material/Upload'; 
 import api from '../utils/axiosConfig';
 
 interface UsuarioDTO {
@@ -56,8 +57,14 @@ const CrearUsuario: React.FC = () => {
   };
 
   return (
-    <Container sx={{ marginTop: '1rem' }}>
-      <Button variant="contained" color="primary" onClick={handleOpenDialog}>
+    <Container sx={{ marginTop: '0' }}>
+      <Button
+        sx={{ borderRadius: "8px", boxShadow: "none"}}
+        variant="contained"
+        color="primary"
+        startIcon={<UploadIcon />} 
+        onClick={handleOpenDialog}
+      >
         Nuevo Usuario
       </Button>
 

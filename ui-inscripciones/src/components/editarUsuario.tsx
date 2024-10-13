@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Container, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, Dialog, DialogActions, DialogContent, DialogTitle, TextField, MenuItem } from '@mui/material';
+import {
+  Button, Box, Container, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper,
+  Dialog, DialogActions, DialogContent, DialogTitle, TextField, MenuItem, InputAdornment, Pagination
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
+import CrearUsuario from './crearUsuario';
 import api from '../utils/axiosConfig';
-
 
 interface Usuario {
   id: number;
@@ -27,19 +31,30 @@ const EditarUsuarios: React.FC = () => {
     rol: 'VISITANTE',
     rolDescripcion: ''
   });
+  const [searchTerm, setSearchTerm] = useState<string>(''); 
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, ] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
-  const fetchUsuarios = async () => {
+  const fetchUsuarios = async (nombre: string = '', page: number = 1, size: number = 5) => {
     try {
-      const response = await api.get('/api/usuario/listar');
+      const endpoint = nombre ? `/api/usuario/buscar/${nombre}` : `/api/usuario/listar`;
+      const response = await api.get(endpoint, {
+        params: {
+          page: page - 1, 
+          size,
+        },
+      });
       setUsuarios(response.data.content);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error('Error fetching usuarios:', error);
     }
   };
 
   useEffect(() => {
-    fetchUsuarios();
-  }, []);
+    fetchUsuarios('', page, pageSize);
+  }, [page, pageSize]);
 
   const handleOpenDialog = (usuario: Usuario) => {
     setSelectedUsuario(usuario);
@@ -74,7 +89,7 @@ const EditarUsuarios: React.FC = () => {
           ...formData,
           id: selectedUsuario.id
         });
-        await fetchUsuarios();
+        await fetchUsuarios(searchTerm, page, pageSize);
         handleCloseDialog();
       } catch (error) {
         console.error('Error updating usuario:', error);
@@ -85,38 +100,115 @@ const EditarUsuarios: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/api/usuario/borrar/${id}`);
-      await fetchUsuarios();
+      await fetchUsuarios(searchTerm, page, pageSize);
     } catch (error) {
       console.error('Error deleting usuario:', error);
     }
   };
 
+  const handleSearch = () => {
+    setPage(1); 
+    fetchUsuarios(searchTerm, 1, pageSize);
+  };
+
+  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    if (event.target.value === '') {
+      fetchUsuarios('', 1, pageSize);
+    }
+  };
+
+  const handlePageChange = (_: unknown, value: number) => {
+    setPage(value);
+};
+
   return (
     <Container sx={{ marginTop: '4rem' }}>
-      <Typography variant="h6" fontWeight={600} color="primary" gutterBottom>
-        Editar Usuarios
+
+<Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center", mb: "1rem "}}>
+      
+
+      <Box display="flex" alignItems="center" mb={0}>
+      <Typography variant="body1" sx={{ mr: 1 }}>
+        Buscar:
       </Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Nombre</TableCell>
-              <TableCell>Apellido</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Fecha de Nacimiento</TableCell>
-              <TableCell>Rol</TableCell>
-              <TableCell>Acciones</TableCell>
+      <TextField
+        variant="outlined"
+        placeholder="Ingrese el nombre del usuario"
+        value={searchTerm}
+        onChange={handleSearchInputChange}
+        InputProps={{
+          sx: { 
+            borderRadius: "8px", 
+            backgroundColor: "white", 
+            border: 'none', 
+            boxShadow: 'none'
+          },
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={handleSearch}>
+                <SearchIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+        InputLabelProps={{
+          sx: {
+            marginLeft: "1rem",
+            color: "#b3bdbb",
+            transition: "0.3s ease"
+          },
+          shrink: searchTerm.length > 0,
+        }}
+        sx={{
+          width: '300px', 
+          '& .MuiOutlinedInput-notchedOutline': {
+            border: 'none'
+          },
+          '&:focus-within .MuiInputLabel-root': {
+            display: 'none'
+          },
+          '&:hover .MuiInputLabel-root': {
+            display: searchTerm.length > 0 ? 'none' : 'block'
+          }
+        }}
+      />
+    </Box>
+
+    <Box>
+      <CrearUsuario />
+    </Box>
+
+    </Box>
+
+
+
+    <TableContainer component={Paper} style={{ overflowY: 'auto', borderRadius: "8px", border: "none", boxShadow: "none" }}>
+      <Table stickyHeader sx={{ padding: "0rem" }}>
+        <TableHead>
+          <TableRow sx={{
+            "& th": {
+              color: "rgba(96, 96, 96)",
+              backgroundColor: "#d3d8de"
+            }
+          }}>
+              <TableCell sx={{ fontWeight: "bold" }}>Nombre</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Correo Electrónico</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Rol</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {usuarios.map(usuario => (
-              <TableRow key={usuario.id}>
-                <TableCell>{usuario.id}</TableCell>
-                <TableCell>{usuario.nombre}</TableCell>
-                <TableCell>{usuario.apellido}</TableCell>
+              <TableRow key={usuario.id} sx={{
+                transition: "background-color 0.3s ease", 
+                '&:hover': {
+                  backgroundColor: '#f0f0f0', 
+                },
+                cursor: 'pointer', 
+              }}>
+                <TableCell sx={{fontWeight: "bold"}}>{`${usuario.nombre} ${usuario.apellido}`}</TableCell>
                 <TableCell>{usuario.email}</TableCell>
-                <TableCell>{new Date(usuario.fechaNacimiento).toLocaleDateString()}</TableCell>
                 <TableCell>{usuario.rol}</TableCell>
                 <TableCell>
                   <IconButton onClick={() => handleOpenDialog(usuario)} color="primary">
@@ -131,6 +223,15 @@ const EditarUsuarios: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Box mt={2} display="flex" justifyContent="center">
+        <Pagination 
+          count={totalPages} 
+          page={page} 
+          onChange={handlePageChange} 
+          color="primary"
+        />
+      </Box>
 
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Editar Usuario</DialogTitle>
@@ -170,19 +271,19 @@ const EditarUsuarios: React.FC = () => {
             InputLabelProps={{ shrink: true }}
           />
           <TextField
-  label="Rol"
-  name="rol" 
-  value={formData.rol}
-  onChange={handleChange}
-  fullWidth
-  margin="normal"
-  select
->
-  <MenuItem value="ADMINISTRADOR">ADMINISTRADOR</MenuItem>
-  <MenuItem value="VISITANTE">VISITANTE</MenuItem>
-  <MenuItem value="MENTOR">MENTOR</MenuItem>
-  <MenuItem value="ESTUDIANTE">ESTUDIANTE</MenuItem>
-</TextField>
+            label="Rol"
+            name="rol"
+            value={formData.rol}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            select
+          >
+            <MenuItem value="ADMINISTRADOR">ADMINISTRADOR</MenuItem>
+            <MenuItem value="VISITANTE">VISITANTE</MenuItem>
+            <MenuItem value="MENTOR">MENTOR</MenuItem>
+            <MenuItem value="ESTUDIANTE">ESTUDIANTE</MenuItem>
+          </TextField>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">

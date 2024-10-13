@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserDataType } from '../types';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Avatar, Button, Card, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import theme from '../theme';
 import api from '../utils/axiosConfig';
@@ -22,7 +22,7 @@ const Profile: React.FC = () => {
   const [userDataLogin, setUserDataLogin] = useState<any>(null);
   const [courses, setCourses] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false); 
-  const navigate = useNavigate();
+ // const navigate = useNavigate();
 
   useEffect(() => {
     const storedUserData = localStorage.getItem('userData');
@@ -52,9 +52,9 @@ const Profile: React.FC = () => {
     fetchCourses();
   }, []);
 
-  const handleHomeClick = () => {
-    navigate('/');
-  };
+  // const handleHomeClick = () => {
+  //   navigate('/');
+  // };
 
   const handleCourseClick = () => {
     setDialogOpen(true); 
@@ -112,14 +112,7 @@ const Profile: React.FC = () => {
           Fecha de nacimiento: {userData.birthday || (userDataLogin && userDataLogin.fechaNacimiento)}
         </Typography>
 
-        <Button
-          onClick={handleHomeClick}
-          variant="contained"
-          color="primary"
-          sx={{ textTransform: 'none', width: '200px', boxShadow: 'none' }}
-        >
-          Editar Perfil
-        </Button>
+
       </Box>
 
       <Box sx={{

@@ -58,7 +58,10 @@ export default function DrawerAppBar(props: Props) {
 
   const handleLogout = () => {
     localStorage.removeItem('userData');
+    localStorage.removeItem('userRole');
     localStorage.removeItem('isLogged');
+    localStorage.removeItem('userDataLogin');
+    localStorage.removeItem('userDataLogin.id');
     handleMenuClose();
     // navigate('/login');
     // window.location.reload();

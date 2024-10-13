@@ -3,6 +3,7 @@ import {
   Button, Container, TextField, MenuItem, Typography, Box, Dialog, DialogActions, DialogContent, DialogTitle
 } from '@mui/material';
 import UploadWidget from '../components/uploadWidget';
+import UploadIcon from '@mui/icons-material/Upload'; 
 import api from '../utils/axiosConfig';
 
 const CrearCurso: React.FC = () => {
@@ -123,7 +124,7 @@ const CrearCurso: React.FC = () => {
 
   return (
     <Container>
-      <Button variant="contained" color="primary" onClick={handleOpenDialog}>
+      <Button startIcon={<UploadIcon />} variant="contained" color="primary" onClick={handleOpenDialog} sx={{ borderRadius: "8px", boxShadow: "none"}}>
         Crear un nuevo curso
       </Button>
 

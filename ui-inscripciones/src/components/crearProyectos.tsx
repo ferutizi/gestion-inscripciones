@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Box, TextField, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Container } from '@mui/material';
 import UploadWidget from '../components/uploadWidget';
+import UploadIcon from '@mui/icons-material/Upload'; 
 import api from '../utils/axiosConfig';
 
 const useFormValidation = (nombre: string, descripcion: string, touched: { nombre: boolean; descripcion: boolean }) => {
@@ -52,11 +53,15 @@ const CrearProyectos: React.FC = () => {
     if (!isFormValid || !url) return;
 
     setLoading(true);
+    
+    // Formatear la fecha
+    const fechaCreacion = new Date().toISOString().split('T')[0]; // Esto te dará el formato yyyy-MM-dd
+
     const proyectoData = {
       nombre,
       descripcion,
       url,
-      fechaCreacion: new Date().toISOString(),
+      fechaCreacion, // usar la fecha formateada
     };
 
     try {
@@ -71,7 +76,8 @@ const CrearProyectos: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+};
+
 
   const handleOpen = () => {
     setOpen(true);
@@ -86,8 +92,8 @@ const CrearProyectos: React.FC = () => {
   };
 
   return (
-    <Box sx={{ padding: '1.5rem' }}>
-      <Button variant="contained" color="primary" onClick={handleOpen}>
+    <Container>
+      <Button startIcon={<UploadIcon />} variant="contained" color="primary" onClick={handleOpen} sx={{ borderRadius: "8px", boxShadow: "none"}}>
         Crear Proyecto
       </Button>
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -150,7 +156,7 @@ const CrearProyectos: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+      </Container>
   );
 };
 

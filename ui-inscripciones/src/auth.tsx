@@ -75,7 +75,6 @@ const Auth: React.FC = () => {
           }
 
           setUsuarios(usuarios);
-          alert('Inicio de sesión exitoso. Haz clic en Aceptar para continuar.');
 
           navigate('/'); 
         } catch (error) {
@@ -118,10 +117,10 @@ const Auth: React.FC = () => {
         localStorage.setItem('userData', JSON.stringify(userDataWithBirthday));
         localStorage.setItem('isLogged', 'true');
         localStorage.setItem('userDataLogin', JSON.stringify(userDataWithBirthday));
-        localStorage.setItem('userDataLogin.id', userDataWithBirthday.sub);
+        localStorage.setItem('userDataLogin.id', userDataWithBirthday.id);
 
         console.log('Datos guardados en userData:', userDataWithBirthday);
-        console.log('ID guardado en userDataLogin.id:', userDataWithBirthday.sub);
+        console.log('ID guardado en userDataLogin.id:', userDataWithBirthday.id);
 
         setUserData(userDataWithBirthday);
         setIsLogged(true);
@@ -142,24 +141,23 @@ const Auth: React.FC = () => {
     onError: (error) => console.log('Login failed:', error),
   });
 
-  const logout = () => {
-    localStorage.removeItem('userData');
-    localStorage.removeItem('isLogged');
-    localStorage.removeItem('userDataLogin');
-    localStorage.removeItem('userDataLogin.id');
-    setIsLogged(false);
-    setUserData(initialUser);
-  };
+  // const logout = () => {
+  //   localStorage.removeItem('userData');
+  //   localStorage.removeItem('userRole');
+  //   localStorage.removeItem('isLogged');
+  //   localStorage.removeItem('userDataLogin');
+  //   localStorage.removeItem('userDataLogin.id');
+  //   setIsLogged(false);
+  //   setUserData(initialUser);
+  // };
 
   return (
     <div>
-      {!isLogged ? (
+
         <div onClick={() => login()}> 
           <GoogleButton />
         </div>
-      ) : (
-        <button onClick={logout}>Cerrar sesión</button>
-      )}
+
     </div>
   );
 };

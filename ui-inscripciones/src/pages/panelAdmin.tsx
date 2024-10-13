@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, CircularProgress } from '@mui/material'; 
+import { Box, Typography, IconButton, CircularProgress, Tabs, Tab } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import PeopleIcon from '@mui/icons-material/People';
+import SchoolIcon from '@mui/icons-material/School';
+import WorkIcon from '@mui/icons-material/Work';
+import GroupsIcon from '@mui/icons-material/Groups'; 
 import { useNavigate } from 'react-router-dom';
 import EditarProyectos from '../components/editarProyectos';
-import CrearProyectos from '../components/crearProyectos';
-import CrearCurso from '../components/crearCurso';
 import CoursesEdit from '../components/coursesEdit';
 import EditarUsuarios from '../components/editarUsuario';
-import CrearUsuario from '../components/crearUsuario';
+import EstudiantesEdit from '../components/estudiantesEdit';
 import api from '../utils/axiosConfig';
+
 
 interface Usuario {
   id: number;
@@ -27,9 +30,10 @@ const PanelAdmin: React.FC = () => {
     rol: null
   });
 
-  const [userDataLogin, setUserDataLogin] = useState<any>(null); 
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]); 
-  const [loading, setLoading] = useState(true); 
+  const [, setUserDataLogin] = useState<any>(null); 
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTab, setSelectedTab] = useState(0); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -87,6 +91,10 @@ const PanelAdmin: React.FC = () => {
     navigate('/');
   };
 
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setSelectedTab(newValue);
+};
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -96,14 +104,16 @@ const PanelAdmin: React.FC = () => {
   }
 
   return (
-    <Box sx={{ padding: '16px' }}>
+    <Box sx={{  minHeight: '100vh', padding: '16px', bgcolor: "#e8eced"}}>
       <Box
         sx={{
           maxWidth: '1200px',
-          width: '100%',
+          
           display: 'flex',
           flexDirection: 'row',
-          alignItems: 'center',
+          margin: "0 auto !important",
+          pt: "1rem"
+
         }}
       >
         <IconButton onClick={handleGoBack} color="primary">
@@ -113,26 +123,75 @@ const PanelAdmin: React.FC = () => {
           Panel de Administrador
         </Typography>
       </Box>
-
-      <Typography variant="h6" color="textPrimary" sx={{ margin: '16px 0' }}>
+<Box sx={{maxWidth: '1200px',
+          display: 'flex',
+          margin: "0 auto !important"}}>
+      {/* <Typography variant="h6" color="textPrimary" sx={{ margin: '16px 0' }}>
         Bienvenido, {userData.family_name || userDataLogin.nombre + " " + userDataLogin.apellido}
-      </Typography>
-      <Typography variant="body1" color="textSecondary" sx={{ marginBottom: '16px' }}>
+      </Typography> */}
+      {/* <Typography variant="body1" color="textSecondary" sx={{ marginBottom: '16px' }}>
         Correo: {userData.email || userDataLogin.email}
       </Typography>
       {userData.rol && (
         <Typography variant="body1" color="textSecondary" sx={{ marginBottom: '16px' }}>
           Rol: {userData.rol || userDataLogin.rol}
         </Typography>
-      )}
+        
+      )} */}
+</Box>
+      <Tabs 
+        value={selectedTab} 
+        onChange={handleChange} 
+        aria-label="Admin Panel Tabs"
+        sx={{
+          '& .MuiTabs-flexContainer': {
+            justifyContent: 'center'
+          },
+          '& .MuiTab-root': {
+            textTransform: 'none',
+            minWidth: 170,
+            fontWeight: 'bold',
+            '&.Mui-selected': {
+              color: '#000',
+            },
+            '& .MuiTab-wrapper > *:first-of-type': {
+              marginBottom: '4px',
+            }
+          },
+          '& .MuiTabs-indicator': {
+            backgroundColor: '#000',
+            height: 3,
+          },
+        }}
+      >
+        <Tab icon={<PeopleIcon />} iconPosition="start" label="Usuarios" />
+        <Tab icon={<SchoolIcon />} iconPosition="start" label="Cursos" />
+        <Tab icon={<WorkIcon />} iconPosition="start" label="Proyectos" />
+        <Tab icon={<GroupsIcon />} iconPosition="start" label="Estudiantes" />
+      </Tabs>
 
-      <Box sx={{ margin: '0 auto', maxWidth: '1200px' }}>
-        <EditarProyectos />
-        <CrearProyectos />
-        <CoursesEdit />
-        <CrearCurso />
-        <EditarUsuarios />
-        <CrearUsuario />
+      <Box sx={{ margin: '16px 0' }}>
+        {selectedTab === 0 && (
+          <>
+            <EditarUsuarios />
+          </>
+        )}
+        {selectedTab === 1 && (
+          <>
+            <CoursesEdit />
+            
+          </>
+        )}
+        {selectedTab === 2 && (
+          <>
+            <EditarProyectos />
+          </>
+        )}
+        {selectedTab === 3 && (
+          <>
+            <EstudiantesEdit />
+          </>
+        )}
       </Box>
     </Box>
   );

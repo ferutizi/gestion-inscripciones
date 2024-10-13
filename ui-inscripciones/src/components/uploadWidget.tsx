@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import { storage } from '../firebaseConfig'; 
+import { Button, CircularProgress, IconButton } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface UploadWidgetProps {
   onUploadComplete: (url: string | null) => void;
@@ -15,7 +18,6 @@ const UploadWidget: React.FC<UploadWidgetProps> = ({ onUploadComplete }) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    
     if (imageUrl) {
       const imagePath = extractImagePath(imageUrl); 
       const imageRef = ref(storage, imagePath);
@@ -78,12 +80,32 @@ const UploadWidget: React.FC<UploadWidgetProps> = ({ onUploadComplete }) => {
         accept="image/*"
         onChange={handleFileChange}
         disabled={uploading || !!imageUrl} 
+        style={{ display: 'none' }} 
+        id="upload-input"
       />
-      {uploading && <p>Uploading: {Math.round(progress)}%</p>}
+      <label htmlFor="upload-input">
+        <Button
+          variant="contained"
+          component="span"
+          color="primary"
+          startIcon={<CloudUploadIcon />}
+          disabled={uploading || !!imageUrl}
+        >
+          Subir Imagen
+        </Button>
+      </label>
+      {uploading && (
+        <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+          <CircularProgress size={24} />
+          <p style={{ marginLeft: '10px' }}>Subiendo: {Math.round(progress)}%</p>
+        </div>
+      )}
       {imageUrl && (
-        <div>
-          <img src={imageUrl} alt="Uploaded" width="100" />
-          <button onClick={handleDeleteImage}>❌</button>
+        <div style={{ marginTop: '10px' }}>
+          <img src={imageUrl} alt="Uploaded" width="100" style={{ marginBottom: '10px' }} />
+          <IconButton onClick={handleDeleteImage} color="secondary">
+            <DeleteIcon />
+          </IconButton>
         </div>
       )}
     </div>

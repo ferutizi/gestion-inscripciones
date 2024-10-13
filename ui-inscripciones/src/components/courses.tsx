@@ -15,14 +15,18 @@ const Courses: React.FC<CoursesProps> = ({ title = 'Próximos cursos' }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false); 
   const [dialogMessage, setDialogMessage] = useState<string>(''); 
   const isLogged = localStorage.getItem('isLogged') === 'true';
-  // const userData = isLogged ? JSON.parse(localStorage.getItem('userData') || '{}') : null;
+  
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
   const userDataLogin = isLogged ? JSON.parse(localStorage.getItem('userDataLogin') || '{}') : null;
+  
+  const userId = userData.id || (userDataLogin ? userDataLogin.id : undefined);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const response = await api.get('/api/curso/listar');
         setCourses(response.data.content);
+        console.log('Cursos:', response.data.content);
       } catch (error) {
         console.error('Error fetching courses:', error);
       }
@@ -36,12 +40,12 @@ const Courses: React.FC<CoursesProps> = ({ title = 'Próximos cursos' }) => {
   }, []);
 
   const handleInscription = async (course: any) => {
-    if (isLogged && userDataLogin) {
-      const { id } = userDataLogin;
+    if (isLogged && userId) { 
+      console.log('ID del usuario logueado:', userId); 
 
       const inscriptionData = {
         idCurso: course.id,
-        idEstudiante: id,
+        idEstudiante: userId,
         estado: 'inscripto',
         calificacion: 0.0,
         fechaInscripcion: new Date().toISOString().split('T')[0], 

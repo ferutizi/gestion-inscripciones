@@ -1,9 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TextField, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
+  TableContainer,
+  Paper,
+  InputAdornment,
+  Pagination,
+  Container
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
+import CrearCurso from './crearCurso';
 import api from '../utils/axiosConfig';
-
 
 interface CursoDTO {
   id: number;
@@ -26,17 +48,26 @@ const CoursesEdit: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [mentores, setMentores] = useState<{ id: number; nombreCompleto: string }[]>([]);
   const [ongs, setOngs] = useState<{ id: number; nombre: string }[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, ] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   useEffect(() => {
     fetchCourses();
     fetchMentores();
     fetchOngs();
-  }, []);
+  }, [page, pageSize]);
 
   const fetchCourses = async () => {
     try {
-      const response = await api.get('/api/curso/listar');
-      setCursos(response.data.content); 
+      const response = await api.get('/api/curso/listar', {
+        params: {
+          page: page - 1, 
+          size: pageSize,
+        },
+      });
+      setCursos(response.data.content);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error('Error al obtener los cursos', error);
     }
@@ -44,13 +75,20 @@ const CoursesEdit: React.FC = () => {
 
   const fetchMentores = async () => {
     try {
-      const response = await api.get('/api/mentor/listar');
-      setMentores(response.data.content.map((mentor: any) => ({
-        id: mentor.id,
-        nombreCompleto: `${mentor.nombreUsuario} ${mentor.apellidoUsuario}`,
-      })));
+      const response = await api.get('/api/usuario/listar');
+      if (response.data && response.data.content) {
+        const mentoresFiltrados = response.data.content.filter(
+          (usuario: { rol: string }) => usuario.rol === 'MENTOR'
+        );
+        setMentores(
+          mentoresFiltrados.map((mentor: { id: number; nombre: string; apellido: string }) => ({
+            id: mentor.id,
+            nombreCompleto: `${mentor.nombre} ${mentor.apellido}`,
+          }))
+        );
+      }
     } catch (error) {
-      console.error('Error al obtener mentores', error);
+      console.error('Error fetching usuarios:', error);
     }
   };
 
@@ -104,38 +142,112 @@ const CoursesEdit: React.FC = () => {
   };
 
   return (
-    <Box sx={{margin: "1.5rem"}}>
-      <Typography variant="h6" fontWeight={600} color="primary" gutterBottom>
-        Editar cursos
-      </Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Título</TableCell>
-            <TableCell>Descripción</TableCell>
-            <TableCell>Lenguaje</TableCell>
-            <TableCell>Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {cursos.map((curso) => (
-            <TableRow key={curso.id}>
-              <TableCell>{curso.titulo}</TableCell>
-              <TableCell>{curso.descripcion}</TableCell>
-              <TableCell>{curso.lenguaje}</TableCell>
-              <TableCell>
-                <IconButton onClick={() => handleEdit(curso)} color="primary">
-                  <EditIcon />
-                </IconButton>
-                <IconButton onClick={() => handleDelete(curso.id)} color="secondary">
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
 
+    
+
+<Container sx={{ marginTop: '4rem' }}>
+
+<Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center", mb: "1rem "}}>
+
+
+<Box display="flex" alignItems="center" mb={0}>
+      <Typography variant="body1" sx={{ mr: 1 }}>
+        Buscar:
+      </Typography>
+      <TextField
+        variant="outlined"
+        placeholder="Ingrese el nombre del curso"
+       // value={searchTerm}
+        // onChange={handleSearchInputChange}
+        InputProps={{
+          sx: { 
+            borderRadius: "8px", 
+            backgroundColor: "white", 
+            border: 'none', 
+            boxShadow: 'none'
+          },
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton >
+                <SearchIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+        InputLabelProps={{
+          sx: {
+            marginLeft: "1rem",
+            color: "#b3bdbb",
+            transition: "0.3s ease"
+          },
+          //shrink: searchTerm.length > 0,
+        }}
+        sx={{
+          width: '300px', 
+          '& .MuiOutlinedInput-notchedOutline': {
+            border: 'none'
+          },
+          '&:focus-within .MuiInputLabel-root': {
+            display: 'none'
+          },
+          '&:hover .MuiInputLabel-root': {
+           // display: searchTerm.length > 0 ? 'none' : 'block'
+          }
+        }}
+      />
+    </Box>
+
+    <Box>
+      <CrearCurso />
+    </Box>
+
+    </Box>
+      
+          <TableContainer component={Paper} style={{ overflowY: 'auto', borderRadius: "8px", border: "none", boxShadow: "none" }}>
+
+        <Table>
+          <TableHead>
+          <TableRow sx={{
+            "& th": {
+              color: "rgba(96, 96, 96)",
+              backgroundColor: "#d3d8de"
+            }
+          }}>
+              <TableCell sx={{ fontWeight: "bold" }}>Título</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Descripción</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Lenguaje</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {cursos.map((curso) => (
+              <TableRow key={curso.id}>
+                <TableCell sx={{ fontWeight: "bold" }}>{curso.titulo}</TableCell>
+                <TableCell>{curso.descripcion}</TableCell>
+                <TableCell>{curso.lenguaje}</TableCell>
+                <TableCell>
+                  <IconButton onClick={() => handleEdit(curso)} color="primary">
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton onClick={() => handleDelete(curso.id)} color="secondary">
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Pagination
+        count={totalPages}
+        page={page}
+        onChange={(_, value) => setPage(value)}
+        color="primary"
+        sx={{ marginTop: "1rem", display: 'flex', justifyContent: 'center' }}
+      />
+
+
+      
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Editar Curso</DialogTitle>
         <DialogContent>
@@ -146,6 +258,7 @@ const CoursesEdit: React.FC = () => {
             value={editCourse?.titulo || ''}
             onChange={handleChange}
             fullWidth
+            sx={{ mb: "1rem" }}
           />
           <TextField
             margin="dense"
@@ -154,6 +267,7 @@ const CoursesEdit: React.FC = () => {
             value={editCourse?.descripcion || ''}
             onChange={handleChange}
             fullWidth
+            sx={{ mb: "1rem" }}
           />
           <TextField
             select
@@ -162,6 +276,7 @@ const CoursesEdit: React.FC = () => {
             value={editCourse?.categoria || ''}
             onChange={handleChange}
             fullWidth
+            sx={{ mb: "1rem" }}
           >
             <MenuItem value="Ui/Ux">Ui/Ux</MenuItem>
             <MenuItem value="Python">Python</MenuItem>
@@ -176,6 +291,7 @@ const CoursesEdit: React.FC = () => {
             value={editCourse?.lenguaje || ''}
             onChange={handleChange}
             fullWidth
+            sx={{ mb: "1rem" }}
           />
           <TextField
             select
@@ -184,6 +300,7 @@ const CoursesEdit: React.FC = () => {
             value={editCourse?.semanal || ''}
             onChange={handleChange}
             fullWidth
+            sx={{ mb: "1rem" }}
           >
             <MenuItem value="1">1 día</MenuItem>
             <MenuItem value="2">2 días</MenuItem>
@@ -197,6 +314,7 @@ const CoursesEdit: React.FC = () => {
             value={editCourse?.fechaInicio || ''}
             onChange={handleChange}
             fullWidth
+            sx={{ mb: "1rem" }}
             InputLabelProps={{ shrink: true }}
           />
           <TextField
@@ -207,6 +325,7 @@ const CoursesEdit: React.FC = () => {
             value={editCourse?.fechaFin || ''}
             onChange={handleChange}
             fullWidth
+            sx={{ mb: "1rem" }}
             InputLabelProps={{ shrink: true }}
           />
           <TextField
@@ -216,6 +335,7 @@ const CoursesEdit: React.FC = () => {
             value={editCourse?.mentorId || ''}
             onChange={handleChange}
             fullWidth
+            sx={{ mb: "1rem" }}
           >
             {mentores.map((mentor) => (
               <MenuItem key={mentor.id} value={mentor.id}>
@@ -230,6 +350,7 @@ const CoursesEdit: React.FC = () => {
             value={editCourse?.ongId || ''}
             onChange={handleChange}
             fullWidth
+            sx={{ mb: "1rem" }}
           >
             {ongs.map((ong) => (
               <MenuItem key={ong.id} value={ong.id}>
@@ -247,7 +368,7 @@ const CoursesEdit: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Container>
   );
 };
 

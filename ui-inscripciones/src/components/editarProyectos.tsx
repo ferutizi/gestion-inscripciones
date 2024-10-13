@@ -1,7 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Container, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import {
+  Box,
+  Button,
+  Container,
+  IconButton,
+  InputAdornment,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Paper,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Pagination
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
+import CrearProyectos from './crearProyectos';
 import api from '../utils/axiosConfig';
 
 interface Proyecto {
@@ -12,139 +34,131 @@ interface Proyecto {
   fechaCreacion: string;
 }
 
-const useFormValidation = (formData: Omit<Proyecto, 'id'>, touched: { nombre: boolean; descripcion: boolean }) => {
-  const [errors, setErrors] = useState({
-    nombre: '',
-    descripcion: '',
-  });
-
-  useEffect(() => {
-    const validate = () => {
-      const newErrors = {
-        nombre: '',
-        descripcion: '',
-      };
-
-      if (touched.nombre && (formData.nombre.trim().length < 5 || formData.nombre.trim().length > 30)) {
-        newErrors.nombre = 'El nombre debe tener entre 5 y 30 caracteres.';
-      }
-
-      if (touched.descripcion && (formData.descripcion.trim().length < 110 || formData.descripcion.trim().length > 300)) {
-        newErrors.descripcion = 'La descripción debe tener entre 110 y 300 caracteres.';
-      }
-
-      setErrors(newErrors);
-    };
-
-    validate();
-  }, [formData, touched]);
-
-  const isFormValid = !errors.nombre && !errors.descripcion;
-
-  return { errors, isFormValid };
-};
-
 const EditarProyectos: React.FC = () => {
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedProyecto, setSelectedProyecto] = useState<Proyecto | null>(null);
-  const [formData, setFormData] = useState<Omit<Proyecto, 'id'>>({
-    nombre: '',
-    descripcion: '',
-    url: '',
-    fechaCreacion: ''
-  });
-
-  const [touched, setTouched] = useState({ nombre: false, descripcion: false });
+  const [editProject, setEditProject] = useState<Proyecto | null>(null);
+  const [open, setOpen] = useState(false);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, ] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   useEffect(() => {
-    const fetchProyectos = async () => {
-      try {
-        const response = await api.get('/api/proyecto/listar');
-        setProyectos(response.data.content);
-      } catch (error) {
-        console.error('Error fetching proyectos:', error);
-      }
-    };
-
     fetchProyectos();
-  }, []);
+  }, [page, pageSize]);
 
-  const { errors, isFormValid } = useFormValidation(formData, touched);
-
-  const handleOpenDialog = (proyecto: Proyecto) => {
-    setSelectedProyecto(proyecto);
-    setFormData({
-      nombre: proyecto.nombre,
-      descripcion: proyecto.descripcion,
-      url: proyecto.url,
-      fechaCreacion: proyecto.fechaCreacion
-    });
-    setTouched({ nombre: false, descripcion: false });
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedProyecto(null);
-  };
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  const handleBlur = (field: 'nombre' | 'descripcion') => {
-    setTouched((prevTouched) => ({ ...prevTouched, [field]: true }));
-  };
-
-  const handleEdit = async () => {
-    if (selectedProyecto && isFormValid) {
-      try {
-        await api.put(`/api/proyecto/editar/${selectedProyecto.id}`, formData);
-        setProyectos(proyectos.map(proyecto => proyecto.id === selectedProyecto.id ? { ...proyecto, ...formData } : proyecto));
-        handleCloseDialog();
-      } catch (error) {
-        console.error('Error updating proyecto:', error);
-      }
+  const fetchProyectos = async () => {
+    try {
+      const response = await api.get('/api/proyecto/listar', {
+        params: {
+          page: page - 1,
+          size: pageSize,
+        },
+      });
+      setProyectos(response.data.content);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error al obtener los proyectos', error);
     }
+  };
+
+  const handleEdit = (proyecto: Proyecto) => {
+    setEditProject(proyecto);
+    setOpen(true);
   };
 
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/api/proyecto/borrar/${id}`);
-      setProyectos(proyectos.filter(proyecto => proyecto.id !== id));
+      fetchProyectos();
     } catch (error) {
-      console.error('Error deleting proyecto:', error);
+      console.error('Error al eliminar el proyecto', error);
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setEditProject(null);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (editProject) {
+      setEditProject({ ...editProject, [e.target.name]: e.target.value });
+    }
+  };
+
+  const handleSave = async () => {
+    if (editProject) {
+      try {
+        await api.put(`/api/proyecto/editar/${editProject.id}`, editProject);
+        fetchProyectos();
+        handleClose();
+      } catch (error) {
+        console.error('Error al actualizar el proyecto', error);
+      }
     }
   };
 
   return (
-    <Container sx={{marginTop: "4rem"}}>
-      <Typography variant="h6" fontWeight={600} color="primary" gutterBottom>
-        Editar Proyectos
-      </Typography>
-      <TableContainer component={Paper}>
+    <Container sx={{ marginTop: '4rem' }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "1rem" }}>
+        <Box display="flex" alignItems="center" mb={0}>
+          <Typography variant="body1" sx={{ mr: 1 }}>
+            Buscar:
+          </Typography>
+          <TextField
+            variant="outlined"
+            placeholder="Ingrese el nombre del proyecto"
+            InputProps={{
+              sx: {
+                borderRadius: "8px",
+                backgroundColor: "white",
+                border: 'none',
+                boxShadow: 'none'
+              },
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton>
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              width: '300px',
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none'
+              },
+            }}
+          />
+        </Box>
+
+        <Box>
+          <CrearProyectos />
+        </Box>
+      </Box>
+
+      <TableContainer component={Paper} style={{ overflowY: 'auto', borderRadius: "8px", border: "none", boxShadow: "none" }}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Nombre</TableCell>
-              <TableCell>Descripción</TableCell>
-              <TableCell>Fecha de Creación</TableCell>
-              <TableCell>Acciones</TableCell>
+            <TableRow sx={{
+              "& th": {
+                color: "rgba(96, 96, 96)",
+                backgroundColor: "#d3d8de"
+              }
+            }}>
+              <TableCell sx={{ fontWeight: "bold" }}>Nombre</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Descripción</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {proyectos.map(proyecto => (
+            {proyectos.map((proyecto) => (
               <TableRow key={proyecto.id}>
-                <TableCell>{proyecto.nombre}</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>{proyecto.nombre}</TableCell>
                 <TableCell>{proyecto.descripcion}</TableCell>
-                <TableCell>{new Date(proyecto.fechaCreacion).toLocaleDateString()}</TableCell>
+   
                 <TableCell>
-                  <IconButton onClick={() => handleOpenDialog(proyecto)} color="primary">
+                  <IconButton onClick={() => handleEdit(proyecto)} color="primary">
                     <EditIcon />
                   </IconButton>
                   <IconButton onClick={() => handleDelete(proyecto.id)} color="secondary">
@@ -157,56 +171,51 @@ const EditarProyectos: React.FC = () => {
         </Table>
       </TableContainer>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
+      <Pagination
+        count={totalPages}
+        page={page}
+        onChange={(_, value) => setPage(value)}
+        color="primary"
+        sx={{ marginTop: "1rem", display: 'flex', justifyContent: 'center' }}
+      />
+
+      <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Editar Proyecto</DialogTitle>
         <DialogContent>
           <TextField
+            margin="dense"
             label="Nombre"
             name="nombre"
-            value={formData.nombre}
+            value={editProject?.nombre || ''}
             onChange={handleChange}
-            onBlur={() => handleBlur('nombre')}
             fullWidth
-            margin="normal"
-            error={!!errors.nombre && touched.nombre}
-            helperText={touched.nombre && errors.nombre}
+            sx={{ mb: "1rem" }}
           />
           <TextField
+            margin="dense"
             label="Descripción"
             name="descripcion"
-            value={formData.descripcion}
+            value={editProject?.descripcion || ''}
             onChange={handleChange}
-            onBlur={() => handleBlur('descripcion')}
             fullWidth
-            margin="normal"
-            error={!!errors.descripcion && touched.descripcion}
-            helperText={touched.descripcion && errors.descripcion}
+            sx={{ mb: "1rem" }}
           />
           <TextField
+            margin="dense"
             label="URL"
             name="url"
-            value={formData.url}
+            value={editProject?.url || ''}
             onChange={handleChange}
             fullWidth
-            margin="normal"
             disabled
-          />
-          <TextField
-            label="Fecha de Creación"
-            name="fechaCreacion"
-            value={formData.fechaCreacion}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            type="date"
-            InputLabelProps={{ shrink: true }}
+            sx={{ mb: "1rem" }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button onClick={handleClose} color="primary">
             Cancelar
           </Button>
-          <Button onClick={handleEdit} color="primary" disabled={!isFormValid}>
+          <Button onClick={handleSave} color="primary">
             Guardar
           </Button>
         </DialogActions>

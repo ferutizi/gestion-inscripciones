@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/axiosConfig';
-import { Box, Typography, TextField, InputAdornment, Button, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Box, Typography, TextField, InputAdornment, Button, List, ListItem, ListItemIcon, ListItemText} from '@mui/material';
+import CustomModal from './customModal';
 import theme from '../theme';
 
 const Footer: React.FC = () => {
@@ -10,12 +11,16 @@ const Footer: React.FC = () => {
   ];
 
   // const categorias = ['Python', 'Diseño UX/UI', 'JS', 'HTML y CSS'];
+  const [email, setEmail] = useState<string>('');
   const [cursosLista, setCursosLista] = useState<string[]>([]);
+
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [, setModalMessage] = useState<string>('');
   // const [cursoProximo, setCursoProximo] = useState<string | null>(null);
 
   const cargarCursos = async () => {
     try {
-      const response = await api.get('http://localhost:8080/api/curso/listar');
+      const response = await api.get('api/curso/listar');
 
       const cursosOrdenados = response.data.content
         .sort((a: any, b: any) => new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime())
@@ -30,6 +35,40 @@ const Footer: React.FC = () => {
   useEffect(() => {
     cargarCursos();
   }, []);
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
+  const handleEmailSubmit = async () => {
+    try {
+      const response = await api.get(`/api/email/noticias/${encodeURIComponent(email)}`);
+      console.log('Response from email submission:', response);
+      setModalMessage('¡Gracias por suscribirte a nuestro boletín de noticias! Pronto recibirás las últimas novedades en tu casilla de correo.');
+      setModalOpen(true);
+    } catch (error) {
+      console.error('Error al enviar el email:', error);
+      setModalMessage('Hubo un error al enviar el email. Por favor, inténtelo de nuevo.');
+      setModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setModalMessage('');
+  };
+
+  const handleButton1Action = () => {
+    console.log('Button 1 clicked');
+    handleCloseModal();
+  };
+
+  const handleButton2Action = () => {
+    console.log('Button 2 clicked');
+    handleCloseModal();
+  };
+
+  
 
   return (
     <Box sx={{
@@ -108,6 +147,8 @@ const Footer: React.FC = () => {
             <TextField
               variant="filled"
               placeholder="Email"
+              value={email}
+              onChange={handleEmailChange}
               sx={{
                 backgroundColor: '#fff',
                 borderRadius: '16px',
@@ -116,18 +157,10 @@ const Footer: React.FC = () => {
                 '& .MuiFilledInput-root': {
                   borderRadius: '16px',
                   padding: '10px 12px',
-                  '& input': {
-                    padding: '10px 0',
-                  },
-                  '&:before': {
-                    display: 'none',
-                  },
-                  '&:hover:before': {
-                    display: 'none',
-                  },
-                  '&:after': {
-                    display: 'none',
-                  },
+                  '& input': { padding: '10px 0' },
+                  '&:before': { display: 'none' },
+                  '&:hover:before': { display: 'none' },
+                  '&:after': { display: 'none' },
                 },
               }}
               InputProps={{
@@ -135,6 +168,7 @@ const Footer: React.FC = () => {
                   <InputAdornment position="end">
                     <Button
                       variant="contained"
+                      onClick={handleEmailSubmit}
                       sx={{
                         backgroundColor: '#00695c',
                         color: '#fff',
@@ -156,6 +190,20 @@ const Footer: React.FC = () => {
             />
           </Box>
         </Box>
+        
+        <CustomModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        title="¡Gracias por suscribirte a nuestro newsletter!"
+        subtitle="Pronto recibirás las últimas novedades en tu casilla de correo."
+        button1Text="Cerrar"
+        button1Action={handleButton1Action}
+        button2Text="Cancel"
+        button2Action={handleButton2Action}
+        showButton2={false}
+      />
+
+
       </Box>
     </Box>
 
