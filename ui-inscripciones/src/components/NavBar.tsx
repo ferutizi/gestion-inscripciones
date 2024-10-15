@@ -63,7 +63,7 @@ export default function DrawerAppBar(props: Props) {
     localStorage.removeItem('userDataLogin');
     localStorage.removeItem('userDataLogin.id');
     handleMenuClose();
-    // navigate('/login');
+    navigate('/login');
     // window.location.reload();
   };
 

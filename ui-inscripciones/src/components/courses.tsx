@@ -167,9 +167,9 @@ const Courses: React.FC<CoursesProps> = ({ title = 'Próximos cursos' }) => {
         </Box>
 
         <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>Información</DialogTitle>
+          <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>Información</DialogTitle>
           <DialogContent>
-            <Typography>{dialogMessage}</Typography>
+            <Typography sx={{textAlign: "center"}}>{dialogMessage}</Typography>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog} color="primary">

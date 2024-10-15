@@ -157,7 +157,7 @@ const Profile: React.FC = () => {
       </Box>
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle sx={{textAlign: "center"}}>Material no disponible</DialogTitle>
+        <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>Material no disponible</DialogTitle>
         <DialogContent>
           <Typography>El material de este curso aún no está disponible.</Typography>
           <Typography>Intente más tarde.</Typography>

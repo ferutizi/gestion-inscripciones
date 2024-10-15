@@ -39,10 +39,10 @@ const CustomModal: React.FC<CustomModalProps> = ({
           p: 4,
         }}
       >
-        <Typography variant="h6" component="h2" mb={1}>
+        <Typography variant="h6" component="h2" mb={1} sx={{textAlign: "center", fontWeight: "bold"}}>
           {title}
         </Typography>
-        <Typography variant="subtitle1" mb={4}>
+        <Typography variant="subtitle1" mb={4} sx={{textAlign: "center"}}>
           {subtitle}
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>

@@ -4,6 +4,7 @@ import FormButton from "../components/FormButton";
 import theme from "../theme";
 import GoogleButton from "../components/GoogleButton";
 import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom'; 
 import LoginLayout from "../layouts/LoginLayout";
 import IniciaConHr from "../components/IniciaConHr";
 import { useState } from "react";
@@ -22,6 +23,7 @@ export default function Register() {
   const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [errorMessage, setErrorMessage] = useState(""); 
   const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate(); 
 
   const isFormValid = () => {
     return (
@@ -64,6 +66,7 @@ export default function Register() {
       const response = await api.post("/api/usuario/crear", usuarioData);
       console.log("Respuesta del servidor:", response.data); 
       setSuccessMessage("Usuario creado exitosamente!");
+      navigate("/login")
       setErrorMessage("");
     } catch (error) {
       setErrorMessage("Error al crear el usuario. Inténtalo nuevamente.");
@@ -74,7 +77,7 @@ export default function Register() {
   return (
     <LoginLayout>
       <Box sx={{ display: { xs: "none", md: "block" } }}>
-        <img src="./src/media/register-img.png" alt="Descripción de la imagen" style={{ width: "100%", height: 'auto' }} />
+        <img src="/media/register-img.png" alt="Descripción de la imagen" style={{ width: "100%", height: 'auto' }} />
       </Box>
       <Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem", width: "100%" }}>
         <Typography variant="customSubtitle">Regístrate</Typography>

@@ -51,27 +51,41 @@ const CoursesEdit: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, ] = useState<number>(5);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [searchTerm, setSearchTerm] = useState<string>(''); 
+  const [noResultsDialogOpen, setNoResultsDialogOpen] = useState(false);
+
+
 
   useEffect(() => {
-    fetchCourses();
+    fetchCursos();
     fetchMentores();
     fetchOngs();
   }, [page, pageSize]);
 
-  const fetchCourses = async () => {
+  const fetchCursos = async (nombre: string = '', page: number = 1, size: number = 5) => {
     try {
-      const response = await api.get('/api/curso/listar', {
+      const endpoint = nombre ? `/api/curso/buscar/${nombre}` : `/api/curso/listar`;
+      const response = await api.get(endpoint, {
         params: {
           page: page - 1, 
-          size: pageSize,
+          size,
         },
       });
       setCursos(response.data.content);
       setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error('Error al obtener los cursos', error);
+      if (nombre) {
+        console.error('Error al buscar los proyectos con el nombre especificado', error);
+        setNoResultsDialogOpen(true); // Abrir el diálogo si no hay resultados
+      } else {
+        console.error('Error al listar todos los proyectos', error);
+      }
     }
   };
+
+  useEffect(() => {
+    fetchCursos('', page, pageSize);
+  }, [page, pageSize]);
 
   const fetchMentores = async () => {
     try {
@@ -112,7 +126,7 @@ const CoursesEdit: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/api/curso/borrar/${id}`);
-      fetchCourses();
+      fetchCursos();
     } catch (error) {
       console.error('Error al eliminar el curso', error);
     }
@@ -133,12 +147,28 @@ const CoursesEdit: React.FC = () => {
     if (editCourse) {
       try {
         await api.put(`/api/curso/editar/${editCourse.id}`, editCourse);
-        fetchCourses();
+        fetchCursos();
         handleClose();
       } catch (error) {
         console.error('Error al actualizar el curso', error);
       }
     }
+  };
+
+  const handleSearch = () => {
+    setPage(1); 
+    fetchCursos(searchTerm, 1, pageSize);
+  };
+
+  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    if (event.target.value === '') {
+      fetchCursos('', 1, pageSize);
+    }
+  };
+
+  const handleNoResultsDialogClose = () => {
+    setNoResultsDialogOpen(false);
   };
 
   return (
@@ -157,8 +187,8 @@ const CoursesEdit: React.FC = () => {
       <TextField
         variant="outlined"
         placeholder="Ingrese el nombre del curso"
-       // value={searchTerm}
-        // onChange={handleSearchInputChange}
+        value={searchTerm}
+        onChange={handleSearchInputChange}
         InputProps={{
           sx: { 
             borderRadius: "8px", 
@@ -168,7 +198,7 @@ const CoursesEdit: React.FC = () => {
           },
           endAdornment: (
             <InputAdornment position="end">
-              <IconButton >
+              <IconButton onClick={handleSearch}>
                 <SearchIcon />
               </IconButton>
             </InputAdornment>
@@ -368,6 +398,22 @@ const CoursesEdit: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+
+      <Dialog open={noResultsDialogOpen} onClose={handleNoResultsDialogClose}>
+        <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>No se encontraron resultados</DialogTitle>
+        <DialogContent>
+          <Typography sx={{textAlign: "center"}}>No se encontraron cursos con el nombre ingresado. Por favor, intente con otro término de búsqueda.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleNoResultsDialogClose} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+
     </Container>
   );
 };

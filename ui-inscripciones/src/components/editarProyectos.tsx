@@ -40,26 +40,36 @@ const EditarProyectos: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [pageSize, ] = useState<number>(5);
+  const [noResultsDialogOpen, setNoResultsDialogOpen] = useState(false);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [searchTerm, setSearchTerm] = useState<string>(''); 
+
 
   useEffect(() => {
     fetchProyectos();
   }, [page, pageSize]);
 
-  const fetchProyectos = async () => {
+  const fetchProyectos = async (nombre: string = '', page: number = 1, size: number = 5) => {
     try {
-      const response = await api.get('/api/proyecto/listar', {
+      const endpoint = nombre ? `/api/proyecto/buscar/${nombre}` : `/api/proyecto/listar`;
+      const response = await api.get(endpoint, {
         params: {
-          page: page - 1,
-          size: pageSize,
+          page: page - 1, 
+          size,
         },
       });
       setProyectos(response.data.content);
       setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error('Error al obtener los proyectos', error);
+      if (nombre) {
+        console.error('Error al buscar los proyectos con el nombre especificado', error);
+        setNoResultsDialogOpen(true); // Abrir el diálogo si no hay resultados
+      } else {
+        console.error('Error al listar todos los proyectos', error);
+      }
     }
   };
+  
 
   const handleEdit = (proyecto: Proyecto) => {
     setEditProject(proyecto);
@@ -80,6 +90,10 @@ const EditarProyectos: React.FC = () => {
     setEditProject(null);
   };
 
+  const handleNoResultsDialogClose = () => {
+    setNoResultsDialogOpen(false);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (editProject) {
       setEditProject({ ...editProject, [e.target.name]: e.target.value });
@@ -98,6 +112,18 @@ const EditarProyectos: React.FC = () => {
     }
   };
 
+  const handleSearch = () => {
+    setPage(1); 
+    fetchProyectos(searchTerm, 1, pageSize);
+  };
+
+  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    if (event.target.value === '') {
+      fetchProyectos('', 1, pageSize);
+    }
+  };
+
   return (
     <Container sx={{ marginTop: '4rem' }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "1rem" }}>
@@ -107,6 +133,8 @@ const EditarProyectos: React.FC = () => {
           </Typography>
           <TextField
             variant="outlined"
+            value={searchTerm}
+        onChange={handleSearchInputChange}
             placeholder="Ingrese el nombre del proyecto"
             InputProps={{
               sx: {
@@ -117,8 +145,8 @@ const EditarProyectos: React.FC = () => {
               },
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton>
-                    <SearchIcon />
+              <IconButton onClick={handleSearch}>
+              <SearchIcon />
                   </IconButton>
                 </InputAdornment>
               ),
@@ -220,6 +248,22 @@ const EditarProyectos: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+
+      <Dialog open={noResultsDialogOpen} onClose={handleNoResultsDialogClose}>
+        <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>No se encontraron resultados</DialogTitle>
+        <DialogContent>
+          <Typography sx={{textAlign: "center"}}>No se encontraron proyectos con el nombre ingresado. Por favor, intente con otro término de búsqueda.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleNoResultsDialogClose} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+
     </Container>
   );
 };

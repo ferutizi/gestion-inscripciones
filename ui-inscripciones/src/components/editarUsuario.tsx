@@ -35,6 +35,8 @@ const EditarUsuarios: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, ] = useState<number>(5);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [noResultsDialogOpen, setNoResultsDialogOpen] = useState(false);
+
 
   const fetchUsuarios = async (nombre: string = '', page: number = 1, size: number = 5) => {
     try {
@@ -48,7 +50,12 @@ const EditarUsuarios: React.FC = () => {
       setUsuarios(response.data.content);
       setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error('Error fetching usuarios:', error);
+      if (nombre) {
+        console.error('Error al buscar los proyectos con el nombre especificado', error);
+        setNoResultsDialogOpen(true); // Abrir el diálogo si no hay resultados
+      } else {
+        console.error('Error al listar todos los proyectos', error);
+      }
     }
   };
 
@@ -67,6 +74,10 @@ const EditarUsuarios: React.FC = () => {
       rolDescripcion: usuario.rolDescripcion
     });
     setOpenDialog(true);
+  };
+
+  const handleNoResultsDialogClose = () => {
+    setNoResultsDialogOpen(false);
   };
 
   const handleCloseDialog = () => {
@@ -294,6 +305,20 @@ const EditarUsuarios: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={noResultsDialogOpen} onClose={handleNoResultsDialogClose}>
+        <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>No se encontraron resultados</DialogTitle>
+        <DialogContent>
+          <Typography sx={{textAlign: "center"}}>No se encontraron usuarios con el nombre ingresado. Por favor, intente con otro término de búsqueda.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleNoResultsDialogClose} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
     </Container>
   );
 };
