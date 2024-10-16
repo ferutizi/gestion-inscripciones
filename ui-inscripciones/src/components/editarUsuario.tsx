@@ -22,7 +22,11 @@ interface Usuario {
 const EditarUsuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [selectedUsuario, setSelectedUsuario] = useState<Usuario | null>(null);
+  const [usuarioToDelete, setUsuarioToDelete] = useState<Usuario | null>(null);
   const [formData, setFormData] = useState<Omit<Usuario, 'id'>>({
     nombre: '',
     apellido: '',
@@ -33,10 +37,9 @@ const EditarUsuarios: React.FC = () => {
   });
   const [searchTerm, setSearchTerm] = useState<string>(''); 
   const [page, setPage] = useState<number>(1);
-  const [pageSize, ] = useState<number>(5);
+  const [pageSize] = useState<number>(5);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [noResultsDialogOpen, setNoResultsDialogOpen] = useState(false);
-
 
   const fetchUsuarios = async (nombre: string = '', page: number = 1, size: number = 5) => {
     try {
@@ -52,7 +55,7 @@ const EditarUsuarios: React.FC = () => {
     } catch (error) {
       if (nombre) {
         console.error('Error al buscar los proyectos con el nombre especificado', error);
-        setNoResultsDialogOpen(true); // Abrir el diálogo si no hay resultados
+        setNoResultsDialogOpen(true);
       } else {
         console.error('Error al listar todos los proyectos', error);
       }
@@ -108,13 +111,34 @@ const EditarUsuarios: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await api.delete(`/api/usuario/borrar/${id}`);
-      await fetchUsuarios(searchTerm, page, pageSize);
-    } catch (error) {
-      console.error('Error deleting usuario:', error);
+  const handleDelete = async () => {
+    if (usuarioToDelete) {
+      try {
+        await api.delete(`/api/usuario/borrar/${usuarioToDelete.id}`);
+        await fetchUsuarios(searchTerm, page, pageSize);
+        setDeleteDialogOpen(false);
+        setUsuarioToDelete(null);
+      } catch (error) {
+        console.error('Error deleting usuario:', error);
+        setErrorMessage('No se pudo eliminar el usuario. Asegúrese de que no tenga registros relacionados.');
+        setErrorDialogOpen(true);
+      }
     }
+  };
+
+  const handleOpenDeleteDialog = (usuario: Usuario) => {
+    setUsuarioToDelete(usuario);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setUsuarioToDelete(null);
+  };
+
+  const handleErrorDialogClose = () => {
+    setErrorDialogOpen(false);
+    setErrorMessage('');
   };
 
   const handleSearch = () => {
@@ -131,78 +155,52 @@ const EditarUsuarios: React.FC = () => {
 
   const handlePageChange = (_: unknown, value: number) => {
     setPage(value);
-};
+  };
 
   return (
     <Container sx={{ marginTop: '4rem' }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "1rem" }}>
+        <Box display="flex" alignItems="center">
+          <Typography variant="body1" sx={{ mr: 1 }}>
+            Buscar:
+          </Typography>
+          <TextField
+            variant="outlined"
+            value={searchTerm}
+            onChange={handleSearchInputChange}
+            placeholder="Ingrese el nombre del proyecto"
+            InputProps={{
+              sx: {
+                borderRadius: "8px",
+                backgroundColor: "white",
+                border: 'none',
+                boxShadow: 'none'
+              },
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleSearch}>
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              width: '300px',
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none'
+              },
+            }}
+          />
+        </Box>
+        <Box>
+          <CrearUsuario />
+        </Box>
+      </Box>
 
-<Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center", mb: "1rem "}}>
-      
-
-      <Box display="flex" alignItems="center" mb={0}>
-      <Typography variant="body1" sx={{ mr: 1 }}>
-        Buscar:
-      </Typography>
-      <TextField
-        variant="outlined"
-        placeholder="Ingrese el nombre del usuario"
-        value={searchTerm}
-        onChange={handleSearchInputChange}
-        InputProps={{
-          sx: { 
-            borderRadius: "8px", 
-            backgroundColor: "white", 
-            border: 'none', 
-            boxShadow: 'none'
-          },
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={handleSearch}>
-                <SearchIcon />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-        InputLabelProps={{
-          sx: {
-            marginLeft: "1rem",
-            color: "#b3bdbb",
-            transition: "0.3s ease"
-          },
-          shrink: searchTerm.length > 0,
-        }}
-        sx={{
-          width: '300px', 
-          '& .MuiOutlinedInput-notchedOutline': {
-            border: 'none'
-          },
-          '&:focus-within .MuiInputLabel-root': {
-            display: 'none'
-          },
-          '&:hover .MuiInputLabel-root': {
-            display: searchTerm.length > 0 ? 'none' : 'block'
-          }
-        }}
-      />
-    </Box>
-
-    <Box>
-      <CrearUsuario />
-    </Box>
-
-    </Box>
-
-
-
-    <TableContainer component={Paper} style={{ overflowY: 'auto', borderRadius: "8px", border: "none", boxShadow: "none" }}>
-      <Table stickyHeader sx={{ padding: "0rem" }}>
-        <TableHead>
-          <TableRow sx={{
-            "& th": {
-              color: "rgba(96, 96, 96)",
-              backgroundColor: "#d3d8de"
-            }
-          }}>
+      <TableContainer component={Paper} style={{ overflowY: 'auto', borderRadius: "8px", border: "none", boxShadow: "none" }}>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow sx={{ "& th": { color: "rgba(96, 96, 96)", backgroundColor: "#d3d8de" } }}>
               <TableCell sx={{ fontWeight: "bold" }}>Nombre</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Correo Electrónico</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Rol</TableCell>
@@ -211,21 +209,15 @@ const EditarUsuarios: React.FC = () => {
           </TableHead>
           <TableBody>
             {usuarios.map(usuario => (
-              <TableRow key={usuario.id} sx={{
-                transition: "background-color 0.3s ease", 
-                '&:hover': {
-                  backgroundColor: '#f0f0f0', 
-                },
-                cursor: 'pointer', 
-              }}>
-                <TableCell sx={{fontWeight: "bold"}}>{`${usuario.nombre} ${usuario.apellido}`}</TableCell>
+              <TableRow key={usuario.id} sx={{ transition: "background-color 0.3s ease", '&:hover': { backgroundColor: '#f0f0f0' }, cursor: 'pointer' }}>
+                <TableCell sx={{ fontWeight: "bold" }}>{`${usuario.nombre} ${usuario.apellido}`}</TableCell>
                 <TableCell>{usuario.email}</TableCell>
                 <TableCell>{usuario.rol}</TableCell>
                 <TableCell>
                   <IconButton onClick={() => handleOpenDialog(usuario)} color="primary">
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(usuario.id)} color="secondary">
+                  <IconButton onClick={() => handleOpenDeleteDialog(usuario)} color="secondary">
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -247,78 +239,52 @@ const EditarUsuarios: React.FC = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Editar Usuario</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Nombre"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Apellido"
-            name="apellido"
-            value={formData.apellido}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Fecha de Nacimiento"
-            name="fechaNacimiento"
-            value={formData.fechaNacimiento}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Rol"
-            name="rol"
-            value={formData.rol}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            select
-          >
-            <MenuItem value="ADMINISTRADOR">ADMINISTRADOR</MenuItem>
-            <MenuItem value="VISITANTE">VISITANTE</MenuItem>
-            <MenuItem value="MENTOR">MENTOR</MenuItem>
-            <MenuItem value="ESTUDIANTE">ESTUDIANTE</MenuItem>
+          <TextField label="Nombre" name="nombre" value={formData.nombre} onChange={handleChange} fullWidth margin="normal" />
+          <TextField label="Apellido" name="apellido" value={formData.apellido} onChange={handleChange} fullWidth margin="normal" />
+          <TextField label="Email" name="email" value={formData.email} onChange={handleChange} fullWidth margin="normal" />
+          <TextField label="Fecha de Nacimiento" name="fechaNacimiento" value={formData.fechaNacimiento} onChange={handleChange} fullWidth margin="normal" type="date" InputLabelProps={{ shrink: true }} />
+          <TextField label="Rol" name="rol" value={formData.rol} onChange={handleChange} fullWidth margin="normal" select>
+            <MenuItem value="VISITANTE">Visitante</MenuItem>
+            <MenuItem value="ADMIN">Admin</MenuItem>
+            <MenuItem value="EDITOR">Editor</MenuItem>
           </TextField>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleEdit} color="primary">
-            Guardar
-          </Button>
+          <Button onClick={handleCloseDialog}>Cancelar</Button>
+          <Button onClick={handleEdit} color="primary">Guardar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
+        <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>Eliminar Usuario</DialogTitle>
+        <DialogContent>
+          <Typography sx={{textAlign: "center"}}>¿Está seguro de que desea eliminar al usuario "{usuarioToDelete?.nombre} {usuarioToDelete?.apellido}"?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog}>Cancelar</Button>
+          <Button onClick={handleDelete} color="secondary">Eliminar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
+        <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>Error al Eliminar</DialogTitle>
+        <DialogContent>
+          <Typography sx={{textAlign: "center"}}>{errorMessage}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleErrorDialogClose}>Cerrar</Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={noResultsDialogOpen} onClose={handleNoResultsDialogClose}>
         <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>No se encontraron resultados</DialogTitle>
         <DialogContent>
-          <Typography sx={{textAlign: "center"}}>No se encontraron usuarios con el nombre ingresado. Por favor, intente con otro término de búsqueda.</Typography>
+          <Typography sx={{textAlign: "center"}}>No se encontraron usuarios con ese nombre. Por favor, intente de nuevo.</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleNoResultsDialogClose} color="primary">
-            Cerrar
-          </Button>
+          <Button onClick={handleNoResultsDialogClose}>Cerrar</Button>
         </DialogActions>
       </Dialog>
-
-
     </Container>
   );
 };

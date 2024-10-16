@@ -169,9 +169,9 @@ const EstudiantesEdit = () => {
   return (
     <div>
       <Container sx={{ marginTop: '4rem' }}>
-            <Box sx={{ display: "flex", alignItems: "center"}}>
-            <Typography variant="body1" sx={{ mr: 1 }}>
-            Buscar:
+            <Box sx={{ display: "flex", alignItems: "center", alignContent: "center"}}>
+            <Typography variant="body1" sx={{ mr: 0}}>
+            
           </Typography>
             <FormControl style={{maxWidth: 300}}
   sx={{
@@ -181,11 +181,15 @@ const EstudiantesEdit = () => {
       border: 'none !important', 
       borderRadius: '8px', 
       padding: '10px',
+      marginBottom: "1rem"
     },
     '& .MuiInputLabel-root': {
       backgroundColor: 'white', 
       padding: '0 4px', 
     },
+    '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none'
+              },
   }}
 >
 <InputLabel shrink={false}>
@@ -199,7 +203,7 @@ const EstudiantesEdit = () => {
   sx={{
     border: "none",
     '& .MuiSelect-select': {
-      padding: '10px', 
+      padding: '6px', 
     },
   }}
 >
@@ -218,21 +222,26 @@ const EstudiantesEdit = () => {
 
         {error && <Typography color="error">{error}</Typography>}
 
-        <TableContainer component={Paper} style={{ marginTop: '1rem' }}>
-          <Table>
+        <TableContainer component={Paper} style={{ overflowY: 'auto', borderRadius: "8px", border: "none", boxShadow: "none" }}>
+        <Table>
             <TableHead>
-              <TableRow>
-                <TableCell>Nombre Estudiante</TableCell>
-                <TableCell>Curso</TableCell>
-                <TableCell>Estado</TableCell>
-                <TableCell>Calificación</TableCell>
-                <TableCell>Acciones</TableCell>
+            <TableRow sx={{
+              "& th": {
+                color: "rgba(96, 96, 96)",
+                backgroundColor: "#d3d8de"
+              }
+            }}>
+                <TableCell sx={{ fontWeight: "bold" }}>Nombre del Alumno</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Curso</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Estado</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Calificación</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {estudiantes.map((estudiante) => (
                 <TableRow key={estudiante.idEstudiante}>
-                  <TableCell>{estudiante.nombreEstudiante}</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>{estudiante.nombreEstudiante}</TableCell>
                   <TableCell>{estudiante.tituloCurso}</TableCell>
                   <TableCell>{estudiante.estado}</TableCell>
                   <TableCell>{estudiante.calificacion}</TableCell>

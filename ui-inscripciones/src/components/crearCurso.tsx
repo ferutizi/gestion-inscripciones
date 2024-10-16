@@ -97,7 +97,7 @@ const CrearCurso: React.FC = () => {
     try {
       const response = await api.post('/api/curso/crear', curso);
       console.log('Curso creado:', response.data);
-      alert('Curso creado exitosamente');
+      //alert('Curso creado exitosamente');
       setCurso({
         titulo: '',
         descripcion: '',

@@ -38,12 +38,13 @@ const EditarProyectos: React.FC = () => {
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   const [editProject, setEditProject] = useState<Proyecto | null>(null);
   const [open, setOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false); // Estado para el diálogo de confirmación
+  const [projectToDelete, setProjectToDelete] = useState<number | null>(null); // ID del proyecto a eliminar
   const [page, setPage] = useState<number>(1);
-  const [pageSize, ] = useState<number>(5);
+  const [pageSize] = useState<number>(5);
   const [noResultsDialogOpen, setNoResultsDialogOpen] = useState(false);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>(''); 
-
 
   useEffect(() => {
     fetchProyectos();
@@ -63,25 +64,34 @@ const EditarProyectos: React.FC = () => {
     } catch (error) {
       if (nombre) {
         console.error('Error al buscar los proyectos con el nombre especificado', error);
-        setNoResultsDialogOpen(true); // Abrir el diálogo si no hay resultados
+        setNoResultsDialogOpen(true);
       } else {
         console.error('Error al listar todos los proyectos', error);
       }
     }
   };
-  
 
   const handleEdit = (proyecto: Proyecto) => {
     setEditProject(proyecto);
     setOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await api.delete(`/api/proyecto/borrar/${id}`);
-      fetchProyectos();
-    } catch (error) {
-      console.error('Error al eliminar el proyecto', error);
+  const handleDeleteOpen = (id: number) => {
+    setProjectToDelete(id);
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (projectToDelete !== null) {
+      try {
+        await api.delete(`/api/proyecto/borrar/${projectToDelete}`);
+        fetchProyectos();
+      } catch (error) {
+        console.error('Error al eliminar el proyecto', error);
+      } finally {
+        setConfirmDeleteOpen(false);
+        setProjectToDelete(null);
+      }
     }
   };
 
@@ -113,7 +123,7 @@ const EditarProyectos: React.FC = () => {
   };
 
   const handleSearch = () => {
-    setPage(1); 
+    setPage(1);
     fetchProyectos(searchTerm, 1, pageSize);
   };
 
@@ -134,19 +144,20 @@ const EditarProyectos: React.FC = () => {
           <TextField
             variant="outlined"
             value={searchTerm}
-        onChange={handleSearchInputChange}
+            onChange={handleSearchInputChange}
             placeholder="Ingrese el nombre del proyecto"
             InputProps={{
               sx: {
                 borderRadius: "8px",
                 backgroundColor: "white",
                 border: 'none',
-                boxShadow: 'none'
+                boxShadow: 'none',
+                
               },
               endAdornment: (
                 <InputAdornment position="end">
-              <IconButton onClick={handleSearch}>
-              <SearchIcon />
+                  <IconButton onClick={handleSearch}>
+                    <SearchIcon />
                   </IconButton>
                 </InputAdornment>
               ),
@@ -189,7 +200,7 @@ const EditarProyectos: React.FC = () => {
                   <IconButton onClick={() => handleEdit(proyecto)} color="primary">
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(proyecto.id)} color="secondary">
+                  <IconButton onClick={() => handleDeleteOpen(proyecto.id)} color="secondary">
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -249,11 +260,25 @@ const EditarProyectos: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle sx={{ fontWeight: "bold", textAlign: "center"}}>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          <Typography sx={{ textAlign: "center"}}>¿Estás seguro de que deseas eliminar este proyecto?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="secondary">
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={noResultsDialogOpen} onClose={handleNoResultsDialogClose}>
-        <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>No se encontraron resultados</DialogTitle>
+        <DialogTitle sx={{textAlign: 'center', fontWeight: "bold"}}>No se encontraron resultados</DialogTitle>
         <DialogContent>
-          <Typography sx={{textAlign: "center"}}>No se encontraron proyectos con el nombre ingresado. Por favor, intente con otro término de búsqueda.</Typography>
+          <Typography sx={{textAlign: "center"}}>No se encontraron proyectos que coincidan con la búsqueda. Por favor, intente con otro término de búsqueda.</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleNoResultsDialogClose} color="primary">
@@ -261,9 +286,6 @@ const EditarProyectos: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-
-
     </Container>
   );
 };

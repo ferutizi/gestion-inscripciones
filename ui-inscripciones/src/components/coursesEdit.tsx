@@ -46,6 +46,8 @@ const CoursesEdit: React.FC = () => {
   const [cursos, setCursos] = useState<CursoDTO[]>([]);
   const [editCourse, setEditCourse] = useState<CursoDTO | null>(null);
   const [open, setOpen] = useState(false);
+  const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false); // Estado para el diálogo de confirmación
+  const [cursoAEliminar, setCursoAEliminar] = useState<number | null>(null); // Estado para el curso a eliminar
   const [mentores, setMentores] = useState<{ id: number; nombreCompleto: string }[]>([]);
   const [ongs, setOngs] = useState<{ id: number; nombre: string }[]>([]);
   const [page, setPage] = useState<number>(1);
@@ -53,8 +55,7 @@ const CoursesEdit: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>(''); 
   const [noResultsDialogOpen, setNoResultsDialogOpen] = useState(false);
-
-
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false); // Estado para el diálogo de error
 
   useEffect(() => {
     fetchCursos();
@@ -82,10 +83,6 @@ const CoursesEdit: React.FC = () => {
       }
     }
   };
-
-  useEffect(() => {
-    fetchCursos('', page, pageSize);
-  }, [page, pageSize]);
 
   const fetchMentores = async () => {
     try {
@@ -123,13 +120,22 @@ const CoursesEdit: React.FC = () => {
     setOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await api.delete(`/api/curso/borrar/${id}`);
-      fetchCursos();
-    } catch (error) {
-      console.error('Error al eliminar el curso', error);
+  const handleDeleteOpen = (id: number) => {
+    setCursoAEliminar(id); // Guardar el curso a eliminar
+    setConfirmDeleteDialogOpen(true); // Abrir el diálogo de confirmación
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (cursoAEliminar) {
+      try {
+        await api.delete(`/api/curso/borrar/${cursoAEliminar}`);
+        fetchCursos();
+      } catch (error) {
+        console.error('Error al eliminar el curso', error);
+        setErrorDialogOpen(true); // Mostrar diálogo de error si la eliminación falla
+      }
     }
+    setConfirmDeleteDialogOpen(false); // Cerrar el diálogo de confirmación
   };
 
   const handleClose = () => {
@@ -171,78 +177,71 @@ const CoursesEdit: React.FC = () => {
     setNoResultsDialogOpen(false);
   };
 
+  const handleErrorDialogClose = () => {
+    setErrorDialogOpen(false);
+  };
+
   return (
-
-    
-
-<Container sx={{ marginTop: '4rem' }}>
-
-<Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center", mb: "1rem "}}>
-
-
-<Box display="flex" alignItems="center" mb={0}>
-      <Typography variant="body1" sx={{ mr: 1 }}>
-        Buscar:
-      </Typography>
-      <TextField
-        variant="outlined"
-        placeholder="Ingrese el nombre del curso"
-        value={searchTerm}
-        onChange={handleSearchInputChange}
-        InputProps={{
-          sx: { 
-            borderRadius: "8px", 
-            backgroundColor: "white", 
-            border: 'none', 
-            boxShadow: 'none'
-          },
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={handleSearch}>
-                <SearchIcon />
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-        InputLabelProps={{
-          sx: {
-            marginLeft: "1rem",
-            color: "#b3bdbb",
-            transition: "0.3s ease"
-          },
-          //shrink: searchTerm.length > 0,
-        }}
-        sx={{
-          width: '300px', 
-          '& .MuiOutlinedInput-notchedOutline': {
-            border: 'none'
-          },
-          '&:focus-within .MuiInputLabel-root': {
-            display: 'none'
-          },
-          '&:hover .MuiInputLabel-root': {
-           // display: searchTerm.length > 0 ? 'none' : 'block'
-          }
-        }}
-      />
-    </Box>
-
-    <Box>
-      <CrearCurso />
-    </Box>
-
-    </Box>
+    <Container sx={{ marginTop: '4rem' }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "1rem " }}>
+        <Box display="flex" alignItems="center" mb={0}>
+          <Typography variant="body1" sx={{ mr: 1 }}>
+            Buscar:
+          </Typography>
+          <TextField
+            variant="outlined"
+            placeholder="Ingrese el nombre del curso"
+            value={searchTerm}
+            onChange={handleSearchInputChange}
+            InputProps={{
+              sx: { 
+                borderRadius: "8px", 
+                backgroundColor: "white", 
+                border: 'none', 
+                boxShadow: 'none'
+              },
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleSearch}>
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            InputLabelProps={{
+              sx: {
+                marginLeft: "1rem",
+                color: "#b3bdbb",
+                transition: "0.3s ease"
+              },
+            }}
+            sx={{
+              width: '300px', 
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none'
+              },
+              '&:focus-within .MuiInputLabel-root': {
+                display: 'none'
+              },
+              '&:hover .MuiInputLabel-root': {
+              }
+            }}
+          />
+        </Box>
+        <Box>
+          <CrearCurso />
+        </Box>
+      </Box>
       
-          <TableContainer component={Paper} style={{ overflowY: 'auto', borderRadius: "8px", border: "none", boxShadow: "none" }}>
-
+      <TableContainer component={Paper} style={{ overflowY: 'auto', borderRadius: "8px", border: "none", boxShadow: "none" }}>
         <Table>
           <TableHead>
-          <TableRow sx={{
-            "& th": {
-              color: "rgba(96, 96, 96)",
-              backgroundColor: "#d3d8de"
-            }
-          }}>
+            <TableRow sx={{
+              "& th": {
+                color: "rgba(96, 96, 96)",
+                backgroundColor: "#d3d8de"
+              }
+            }}>
               <TableCell sx={{ fontWeight: "bold" }}>Título</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Descripción</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Lenguaje</TableCell>
@@ -256,10 +255,10 @@ const CoursesEdit: React.FC = () => {
                 <TableCell>{curso.descripcion}</TableCell>
                 <TableCell>{curso.lenguaje}</TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleEdit(curso)} color="primary">
+                  <IconButton color="primary" onClick={() => handleEdit(curso)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(curso.id)} color="secondary">
+                  <IconButton  color="secondary" onClick={() => handleDeleteOpen(curso.id)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -268,13 +267,62 @@ const CoursesEdit: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
       <Pagination
-        count={totalPages}
-        page={page}
-        onChange={(_, value) => setPage(value)}
-        color="primary"
-        sx={{ marginTop: "1rem", display: 'flex', justifyContent: 'center' }}
+        count={totalPages} 
+        page={page} 
+        onChange={(_, value) => setPage(value)} 
+        sx={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }} 
       />
+
+      <Dialog
+        open={confirmDeleteDialogOpen}
+        onClose={() => setConfirmDeleteDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontWeight: "bold", textAlign: "center"}}>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          <Typography sx={{ textAlign: "center"}}>¿Estás seguro de que deseas eliminar este curso?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteDialogOpen(false)} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="secondary">
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={noResultsDialogOpen}
+        onClose={handleNoResultsDialogClose}
+      >
+        <DialogTitle>No se encontraron resultados</DialogTitle>
+        <DialogContent>
+          <Typography>No se encontraron cursos con el nombre especificado.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleNoResultsDialogClose} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+      <Dialog
+        open={errorDialogOpen}
+        onClose={handleErrorDialogClose}
+      >
+        <DialogTitle sx={{textAlign: "center", fontWeight: "bold"}}>Error al Eliminar Curso</DialogTitle>
+        <DialogContent>
+          <Typography sx={{textAlign: "center"}}>No se pudo eliminar el curso. Por favor, inténtelo más tarde.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleErrorDialogClose} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
 
 
       
