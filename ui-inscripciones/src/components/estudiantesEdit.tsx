@@ -1,26 +1,31 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-//import { useParams } from 'react-router-dom';
 import api from '../utils/axiosConfig';
 import DeleteIcon from '@mui/icons-material/Delete';
-
-import { 
-    Box,
-    Container,
-  Typography, 
+import EditIcon from '@mui/icons-material/Edit';
+import {
+  Box,
+  Container,
+  Typography,
   IconButton,
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  Select, 
-  MenuItem, 
-  FormControl, 
-  InputLabel, 
-  SelectChangeEvent 
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField
 } from '@mui/material';
 
 interface Estudiante {
@@ -28,19 +33,24 @@ interface Estudiante {
   nombreEstudiante: string;
   tituloCurso: string;
   idCurso: string; 
+  estado: string;
+  calificacion: number;
+  fechaInscripcion: string;
 }
 
 const EstudiantesEdit = () => {
-//  const { idCurso } = useParams<{ idCurso: string }>(); 
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]); 
   const [cursos, setCursos] = useState<any[]>([]); 
   const [, setLoading] = useState(true);
+  const [page, ] = useState<number>(1);
+  const [pageSize, ] = useState<number>(5);
+  const [, setTotalPages] = useState<number>(1);
   const [error, setError] = useState<string | null>(null); 
-  const [page, ] = useState(1); 
-  const [pageSize, ] = useState(10); 
-  const [, setTotalPages] = useState<number>(0); 
   const [cursoSeleccionado, setCursoSeleccionado] = useState<string>(''); 
-  
+  const [openDialog, setOpenDialog] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [selectedEstudiante, setSelectedEstudiante] = useState<Estudiante | null>(null);
+  const [estudianteToDelete, setEstudianteToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -66,7 +76,7 @@ const EstudiantesEdit = () => {
     try {
       const response = await api.get(`/api/inscripcion/curso/listar/estudiantes/${cursoId}`);
       setEstudiantes(response.data.content);
-      console.log("Estudiantes del curso seleccionado", response.data.content)
+      console.log("Estudiantes del curso seleccionado", response.data.content);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(err.message);
@@ -84,14 +94,57 @@ const EstudiantesEdit = () => {
     fetchEstudiantes(selectedCurso);
   };
 
-  const handleDeleteEstudiante = async (idEstudiante: string) => {
-    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar este estudiante?');
-    if (!confirmDelete) return;
+  const handleEditEstudiante = (estudiante: Estudiante) => {
+    setSelectedEstudiante(estudiante);
+    setOpenDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+    setSelectedEstudiante(null);
+  };
+
+  const handleConfirmDialogClose = () => {
+    setOpenConfirmDialog(false);
+    setEstudianteToDelete(null);
+  };
+
+  const handleSave = async () => {
+    if (!selectedEstudiante) return;
 
     try {
-      await api.delete(`/api/inscripcion/curso/borrar/${cursoSeleccionado}/${idEstudiante}`);
-      setEstudiantes((prevEstudiantes) => prevEstudiantes.filter((estudiante) => estudiante.idEstudiante !== idEstudiante));
-      alert('Estudiante eliminado con éxito');
+      await api.put(`/api/inscripcion/curso/editar`, {
+        idEstudiante: selectedEstudiante.idEstudiante,
+        idCurso: selectedEstudiante.idCurso,
+        estado: selectedEstudiante.estado,
+        calificacion: selectedEstudiante.calificacion,
+        fechaInscripcion: selectedEstudiante.fechaInscripcion,
+      });
+      setEstudiantes((prevEstudiantes) =>
+        prevEstudiantes.map((e) =>
+          e.idEstudiante === selectedEstudiante.idEstudiante ? selectedEstudiante : e
+        )
+      );
+      setOpenDialog(false);
+    } catch (error) {
+      console.error('Error al editar el estudiante', error);
+    }
+  };
+
+  const handleDeleteEstudiante = (idEstudiante: string) => {
+    setEstudianteToDelete(idEstudiante);
+    setOpenConfirmDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!estudianteToDelete) return;
+
+    try {
+      await api.delete(`/api/inscripcion/curso/borrar/${cursoSeleccionado}/${estudianteToDelete}`);
+      setEstudiantes((prevEstudiantes) =>
+        prevEstudiantes.filter((estudiante) => estudiante.idEstudiante !== estudianteToDelete)
+      );
+      setOpenConfirmDialog(false);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(err.message);
@@ -101,9 +154,21 @@ const EstudiantesEdit = () => {
     }
   };
 
+  const handleEstadoChange = (event: SelectChangeEvent<string>) => {
+    if (selectedEstudiante) {
+      setSelectedEstudiante({ ...selectedEstudiante, estado: event.target.value });
+    }
+  };
+
+  const handleCalificacionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (selectedEstudiante) {
+      setSelectedEstudiante({ ...selectedEstudiante, calificacion: Number(event.target.value) });
+    }
+  };
+
   return (
     <div>
-        <Container sx={{ marginTop: '4rem' }}>
+      <Container sx={{ marginTop: '4rem' }}>
             <Box sx={{ display: "flex", alignItems: "center"}}>
             <Typography variant="body1" sx={{ mr: 1 }}>
             Buscar:
@@ -151,38 +216,69 @@ const EstudiantesEdit = () => {
 
       </Box>
 
-      {error && <Typography color="error">{error}</Typography>}
+        {error && <Typography color="error">{error}</Typography>}
 
-      <TableContainer component={Paper} style={{ overflowY: 'auto', borderRadius: "8px", border: "none", boxShadow: "none", marginTop: "1rem" }}>
-
-        <Table>
-          <TableHead>
-          <TableRow sx={{
-              "& th": {
-                color: "rgba(96, 96, 96)",
-                backgroundColor: "#d3d8de"
-              }
-            }}>
-              <TableCell sx={{ fontWeight: "bold" }}>Nombre Estudiante</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Curso</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {estudiantes.map((estudiante) => (
-              <TableRow key={estudiante.idEstudiante}>
-                <TableCell>{estudiante.nombreEstudiante}</TableCell>
-                <TableCell>{estudiante.tituloCurso}</TableCell>
-                <TableCell>
-                <IconButton onClick={() => handleDeleteEstudiante(estudiante.idEstudiante)} color="secondary">
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
+        <TableContainer component={Paper} style={{ marginTop: '1rem' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Nombre Estudiante</TableCell>
+                <TableCell>Curso</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell>Calificación</TableCell>
+                <TableCell>Acciones</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {estudiantes.map((estudiante) => (
+                <TableRow key={estudiante.idEstudiante}>
+                  <TableCell>{estudiante.nombreEstudiante}</TableCell>
+                  <TableCell>{estudiante.tituloCurso}</TableCell>
+                  <TableCell>{estudiante.estado}</TableCell>
+                  <TableCell>{estudiante.calificacion}</TableCell>
+                  <TableCell>
+                    <IconButton color="primary" onClick={() => handleEditEstudiante(estudiante)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={() => handleDeleteEstudiante(estudiante.idEstudiante)} color="secondary">
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Dialog open={openDialog} onClose={handleDialogClose}>
+        <DialogTitle sx={{fontWeight: "bold", paddingBottom: "0rem", textAlign: "center"}}>Editar Estudiante</DialogTitle>
+        <DialogTitle sx={{fontWeight: "bold", paddingTop: "0rem", textAlign: "center"}}>{selectedEstudiante?.nombreEstudiante}</DialogTitle>
+          <DialogContent sx={{ '.MuiDialogContent-root&.MuiDialogContent-root': { pt: 1 } }}>
+            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+              <InputLabel>Estado</InputLabel>
+              <Select value={selectedEstudiante?.estado || ''} onChange={handleEstadoChange} label="Estado">
+                <MenuItem value="INSCRIPTO">INSCRIPTO</MenuItem>
+                <MenuItem value="APROBADO">APROBADO</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField label="Calificación" type="number" fullWidth value={selectedEstudiante?.calificacion || ''} onChange={handleCalificacionChange} inputProps={{ min: 0, max: 10 }} />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="secondary">Cancelar</Button>
+            <Button onClick={handleSave} color="primary">Guardar</Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={openConfirmDialog} onClose={handleConfirmDialogClose}>
+          <DialogTitle>Confirmar Eliminación</DialogTitle>
+          <DialogContent>
+            <Typography>¿Estás seguro de que deseas eliminar este estudiante?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleConfirmDialogClose}>Cancelar</Button>
+            <Button onClick={confirmDelete} color="secondary">Eliminar</Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </div>
   );
