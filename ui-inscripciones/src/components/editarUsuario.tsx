@@ -19,8 +19,7 @@ interface Usuario {
   rolDescripcion: string;
 }
 
-const EditarUsuarios: React.FC = () => {
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+const EditarUsuarios: React.FC<{ parsedUserData: any, parsedUserDataLogin: any }> = ({ parsedUserData, parsedUserDataLogin }) => {  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
@@ -40,6 +39,13 @@ const EditarUsuarios: React.FC = () => {
   const [pageSize] = useState<number>(5);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [noResultsDialogOpen, setNoResultsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    console.log('555 Datos del usuario login:', parsedUserDataLogin); // <-- Log en la consola
+    console.log('555 Datos del usuario almacenados:', parsedUserData); // <-- Log en la consola
+
+    fetchUsuarios('', page, pageSize);
+  }, [parsedUserData, parsedUserDataLogin, page, pageSize]);
 
   const fetchUsuarios = async (nombre: string = '', page: number = 1, size: number = 5) => {
     try {
@@ -208,22 +214,26 @@ const EditarUsuarios: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {usuarios.map(usuario => (
-              <TableRow key={usuario.id} sx={{ transition: "background-color 0.3s ease", '&:hover': { backgroundColor: '#f0f0f0' }, cursor: 'pointer' }}>
-                <TableCell sx={{ fontWeight: "bold" }}>{`${usuario.nombre} ${usuario.apellido}`}</TableCell>
-                <TableCell>{usuario.email}</TableCell>
-                <TableCell>{usuario.rol}</TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleOpenDialog(usuario)} color="primary">
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton onClick={() => handleOpenDeleteDialog(usuario)} color="secondary">
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+  {usuarios.map(usuario => (
+    <TableRow key={usuario.id} sx={{ transition: "background-color 0.3s ease", '&:hover': { backgroundColor: '#f0f0f0' }, cursor: 'pointer' }}>
+      <TableCell sx={{ fontWeight: "bold" }}>{`${usuario.nombre} ${usuario.apellido}`}</TableCell>
+      <TableCell>{usuario.email}</TableCell>
+      <TableCell>{usuario.rol}</TableCell>
+      <TableCell>
+        <IconButton onClick={() => handleOpenDialog(usuario)} color="primary">
+          <EditIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => handleOpenDeleteDialog(usuario)}
+          color="secondary"
+          disabled={usuario.email === parsedUserDataLogin.email || usuario.email === parsedUserData.email} // Aquí desactivas el botón
+        >
+          <DeleteIcon />
+        </IconButton>
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
         </Table>
       </TableContainer>
 
@@ -243,11 +253,20 @@ const EditarUsuarios: React.FC = () => {
           <TextField label="Apellido" name="apellido" value={formData.apellido} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Email" name="email" value={formData.email} onChange={handleChange} fullWidth margin="normal" />
           <TextField label="Fecha de Nacimiento" name="fechaNacimiento" value={formData.fechaNacimiento} onChange={handleChange} fullWidth margin="normal" type="date" InputLabelProps={{ shrink: true }} />
-          <TextField label="Rol" name="rol" value={formData.rol} onChange={handleChange} fullWidth margin="normal" select>
-            <MenuItem value="VISITANTE">Visitante</MenuItem>
-            <MenuItem value="ADMIN">Admin</MenuItem>
-            <MenuItem value="EDITOR">Editor</MenuItem>
-          </TextField>
+          <TextField
+  label="Rol"
+  name="rol"
+  value={formData.rol}
+  onChange={handleChange}
+  fullWidth
+  margin="normal"
+  select
+  disabled={selectedUsuario?.email === parsedUserDataLogin.email}
+>
+  <MenuItem value="VISITANTE">Visitante</MenuItem>
+  <MenuItem value="ADMINISTRADOR">Admin</MenuItem>
+  <MenuItem value="EDITOR">Editor</MenuItem>
+</TextField>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancelar</Button>

@@ -30,7 +30,7 @@ const PanelAdmin: React.FC = () => {
     rol: null
   });
 
-  const [, setUserDataLogin] = useState<any>(null); 
+  const [userDataLogin, setUserDataLogin] = useState<any>(null); 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState(0); 
@@ -40,6 +40,7 @@ const PanelAdmin: React.FC = () => {
     const storedUserData = localStorage.getItem('userData');
     if (storedUserData) {
       const parsedUserData = JSON.parse(storedUserData);
+     // console.log('Datos del usuario almacenados:', parsedUserData); 
       setUserData((prevData) => ({
         ...prevData,
         family_name: parsedUserData.family_name,
@@ -50,6 +51,7 @@ const PanelAdmin: React.FC = () => {
     const storedUserDataLogin = localStorage.getItem('userDataLogin'); 
     if (storedUserDataLogin) {
       const parsedUserDataLogin = JSON.parse(storedUserDataLogin);
+      // console.log('Datos del usuario login:', parsedUserDataLogin); 
       setUserDataLogin(parsedUserDataLogin); 
     }
 
@@ -123,22 +125,7 @@ const PanelAdmin: React.FC = () => {
           Panel de Administrador
         </Typography>
       </Box>
-<Box sx={{maxWidth: '1200px',
-          display: 'flex',
-          margin: "0 auto !important"}}>
-      {/* <Typography variant="h6" color="textPrimary" sx={{ margin: '16px 0' }}>
-        Bienvenido, {userData.family_name || userDataLogin.nombre + " " + userDataLogin.apellido}
-      </Typography> */}
-      {/* <Typography variant="body1" color="textSecondary" sx={{ marginBottom: '16px' }}>
-        Correo: {userData.email || userDataLogin.email}
-      </Typography>
-      {userData.rol && (
-        <Typography variant="body1" color="textSecondary" sx={{ marginBottom: '16px' }}>
-          Rol: {userData.rol || userDataLogin.rol}
-        </Typography>
-        
-      )} */}
-</Box>
+
       <Tabs 
         value={selectedTab} 
         onChange={handleChange} 
@@ -173,7 +160,7 @@ const PanelAdmin: React.FC = () => {
       <Box sx={{ margin: '16px 0' }}>
         {selectedTab === 0 && (
           <>
-            <EditarUsuarios />
+               <EditarUsuarios parsedUserData={userData} parsedUserDataLogin={userDataLogin} />
           </>
         )}
         {selectedTab === 1 && (

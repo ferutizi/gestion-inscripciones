@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080', // Se puede obtener desde las variables de entorno
+ // baseURL: 'http://localhost:8080', 
+  baseURL: "https://inscripcionespoloitapi.onrender.com",// Se puede obtener desde las variables de entorno
 });
 
 //CAMBIAR A URL DEL DEPLOY (SI APLICA)
